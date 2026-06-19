@@ -187,6 +187,29 @@ export interface Product {
     updated_at: string;
 }
 
+/** A blog post (rich text + per-post SEO). */
+export interface Post {
+    id: number;
+    title: string;
+    slug: string;
+    excerpt: string | null;
+    body: string | null;
+    cover_image: string | null;
+    author: string | null;
+    status: 'draft' | 'published';
+    published_at: string | null;
+    meta_title: string | null;
+    meta_description: string | null;
+    meta_keywords: string[] | null;
+    og_image: string | null;
+    noindex: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+/** A lighter post row for the listing table. */
+export type PostListItem = Pick<Post, 'id' | 'title' | 'slug' | 'status' | 'published_at' | 'updated_at'>;
+
 /** A customer selectable in the estimate creator. */
 export interface Customer {
     id: number;

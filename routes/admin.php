@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EstimateController;
 use App\Http\Controllers\Admin\EstimateSettingController;
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SiteSettingController;
@@ -93,6 +94,14 @@ Route::middleware(['auth', AdminAccess::class])->group(function () {
         Route::get('/customers/{id}/edit', [CustomerController::class, 'edit'])->where('id', '[0-9]+')->name('admin.customers.edit');
         Route::put('/customers/{id}', [CustomerController::class, 'update'])->where('id', '[0-9]+')->name('admin.customers.update');
         Route::delete('/customers/{id}', [CustomerController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.customers.destroy');
+
+        // Blog posts (rich text + per-post SEO; update via POST for image uploads).
+        Route::get('/blog', [PostController::class, 'index'])->name('admin.blog.index');
+        Route::get('/blog/create', [PostController::class, 'create'])->name('admin.blog.create');
+        Route::post('/blog', [PostController::class, 'store'])->name('admin.blog.store');
+        Route::get('/blog/{id}/edit', [PostController::class, 'edit'])->where('id', '[0-9]+')->name('admin.blog.edit');
+        Route::post('/blog/{id}', [PostController::class, 'update'])->where('id', '[0-9]+')->name('admin.blog.update');
+        Route::delete('/blog/{id}', [PostController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.blog.destroy');
 
         // Enquiries (contact submissions from the public site).
         Route::get('/enquiries', [EnquiryController::class, 'index'])->name('admin.enquiries.index');

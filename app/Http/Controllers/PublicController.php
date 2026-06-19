@@ -95,6 +95,30 @@ class PublicController extends Controller
         return response()->download($path, $name);
     }
 
+    /** Public blog listing (published posts only). */
+    public function blog(): View
+    {
+        return view('public.blog.index', [
+            'settings' => SiteSetting::map(),
+            'seo' => SeoSetting::where('page_identifier', 'blog')->first(),
+            'posts' => \App\Models\Post::published()->latestFirst()->get(),
+        ]);
+    }
+
+    /** A single published blog post. */
+    public function blogPost(string $slug): View
+    {
+        $post = \App\Models\Post::published()->where('slug', $slug)->firstOrFail();
+        // Fall back to the cover image for social sharing when no OG image is set.
+        $post->og_image = $post->og_image ?: $post->cover_image;
+
+        return view('public.blog.show', [
+            'settings' => SiteSetting::map(),
+            'seo' => $post,
+            'post' => $post,
+        ]);
+    }
+
     /** Store a contact / enquiry submission from the public site. */
     public function storeEnquiry(StoreEnquiryRequest $request): RedirectResponse
     {

@@ -20,4 +20,6 @@ Route::get('/catalogues', [PublicController::class, 'catalogues'])->name('catalo
 Route::get('/catalogues/{id}/download', [PublicController::class, 'downloadCatalogue'])->whereNumber('id')->name('catalogues.download');
 Route::get('/about', [PublicController::class, 'about'])->name('about');
 Route::get('/contact', [PublicController::class, 'contact'])->name('contact');
+Route::get('/blog', [PublicController::class, 'blog'])->name('blog');
+Route::get('/blog/{slug}', [PublicController::class, 'blogPost'])->where('slug', '[a-z0-9-]+')->name('blog.show');
 Route::post('/enquiry', [PublicController::class, 'storeEnquiry'])->name('enquiry.store');

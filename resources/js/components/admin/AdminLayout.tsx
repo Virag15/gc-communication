@@ -15,6 +15,7 @@ import {
     Calculator,
     Boxes,
     Contact,
+    Newspaper,
     type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -82,6 +83,7 @@ const navGroups: NavGroup[] = [
             { name: 'Brands', href: '/admin/brands', icon: Package },
             { name: 'Products', href: '/admin/products', icon: Boxes },
             { name: 'Catalogues', href: '/admin/catalogues', icon: FileText },
+            { name: 'Blog', href: '/admin/blog', icon: Newspaper },
             { name: 'Customers', href: '/admin/customers', icon: Contact },
             { name: 'Enquiries', href: '/admin/enquiries', icon: Inbox },
             { name: 'BOM', href: '/admin/bom', icon: Calculator },
