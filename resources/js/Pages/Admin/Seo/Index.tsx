@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { Loader2, Upload, Image as ImageIcon, RefreshCw } from 'lucide-react';
+import { Loader2, Upload, Image as ImageIcon, RefreshCw, X } from 'lucide-react';
 import { type SeoSetting } from '@/types';
 
 interface PageMeta {
@@ -36,6 +37,7 @@ interface PageForm {
     meta_keywords: string;
     og_title: string;
     og_description: string;
+    og_type: string;
     canonical_url: string;
     structured_data: string;
     noindex: boolean;
@@ -46,8 +48,6 @@ interface PagesForm {
     pages: Record<string, PageForm>;
 }
 
-const DRAFT_KEY = 'gc-seo-draft';
-
 function toForm(s: SeoSetting | undefined): PageForm {
     const kw = s?.meta_keywords;
     return {
@@ -56,11 +56,59 @@ function toForm(s: SeoSetting | undefined): PageForm {
         meta_keywords: Array.isArray(kw) ? kw.join(', ') : ((kw as string | null) ?? ''),
         og_title: s?.og_title ?? '',
         og_description: s?.og_description ?? '',
+        og_type: s?.og_type ?? 'website',
         canonical_url: s?.canonical_url ?? '',
         structured_data: s?.structured_data ?? '',
         noindex: !!s?.noindex,
         og_image: null,
     };
+}
+
+/** Chip-style keyword editor: type and press Enter/comma to add a tag. */
+function KeywordsInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+    const [draft, setDraft] = useState('');
+    const chips = value.split(',').map((s) => s.trim()).filter(Boolean);
+
+    const commit = (raw: string) => {
+        const parts = raw.split(',').map((s) => s.trim()).filter(Boolean);
+        if (!parts.length) return;
+        const next = Array.from(new Set([...chips, ...parts]));
+        onChange(next.join(', '));
+        setDraft('');
+    };
+    const removeAt = (i: number) => onChange(chips.filter((_, idx) => idx !== i).join(', '));
+
+    return (
+        <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-input bg-transparent px-2 py-1.5 focus-within:ring-1 focus-within:ring-ring">
+            {chips.map((c, i) => (
+                <span key={`${c}-${i}`} className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs">
+                    {c}
+                    <button type="button" onClick={() => removeAt(i)} className="text-muted-foreground hover:text-foreground" aria-label={`Remove ${c}`}>
+                        <X className="h-3 w-3" />
+                    </button>
+                </span>
+            ))}
+            <input
+                value={draft}
+                onChange={(e) => {
+                    const v = e.target.value;
+                    if (v.includes(',')) commit(v);
+                    else setDraft(v);
+                }}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        commit(draft);
+                    } else if (e.key === 'Backspace' && !draft && chips.length) {
+                        removeAt(chips.length - 1);
+                    }
+                }}
+                onBlur={() => commit(draft)}
+                placeholder={chips.length ? '' : 'Type a keyword, press Enter'}
+                className="min-w-[140px] flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            />
+        </div>
+    );
 }
 
 export default function SeoIndex({ seoSettings, pages, sitemapInfo, appUrl }: SeoIndexProps) {
@@ -72,38 +120,7 @@ export default function SeoIndex({ seoSettings, pages, sitemapInfo, appUrl }: Se
 
     const { data, setData, post, processing, errors } = useForm<PagesForm>({ pages: initial });
     const [active, setActive] = useState(pages[0]?.identifier ?? 'home');
-    const [restored, setRestored] = useState(false);
     const fileRef = useRef<HTMLInputElement>(null);
-
-    // Restore a draft from a previous session (text fields only; never files).
-    useEffect(() => {
-        try {
-            const raw = localStorage.getItem(DRAFT_KEY);
-            if (!raw) return;
-            const saved = JSON.parse(raw) as Record<string, Partial<PageForm>>;
-            const merged: Record<string, PageForm> = {};
-            for (const p of pages) merged[p.identifier] = { ...initial[p.identifier], ...saved[p.identifier], og_image: null };
-            setData('pages', merged);
-            setRestored(true);
-        } catch {
-            /* ignore */
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    // Autosave the draft (strip File objects, which cannot be serialized).
-    useEffect(() => {
-        try {
-            const serializable: Record<string, Omit<PageForm, 'og_image'>> = {};
-            for (const [id, p] of Object.entries(data.pages)) {
-                const { og_image: _omit, ...rest } = p;
-                serializable[id] = rest;
-            }
-            localStorage.setItem(DRAFT_KEY, JSON.stringify(serializable));
-        } catch {
-            /* storage full */
-        }
-    }, [data.pages]);
 
     const f = data.pages[active];
     const E = errors as unknown as Record<string, string>;
@@ -113,22 +130,12 @@ export default function SeoIndex({ seoSettings, pages, sitemapInfo, appUrl }: Se
         setData('pages', { ...data.pages, [active]: { ...data.pages[active], [field]: value } });
     };
 
-    const discardDraft = () => {
-        try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
-        setData('pages', initial);
-        setRestored(false);
-    };
-
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         post('/admin/seo', {
             forceFormData: true,
             preserveScroll: true,
-            onSuccess: () => {
-                try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
-                setRestored(false);
-                toast.success('SEO settings saved.');
-            },
+            onSuccess: () => toast.success('SEO settings saved.'),
             onError: () => toast.error('Please fix the errors and try again.'),
         });
     }
@@ -148,22 +155,15 @@ export default function SeoIndex({ seoSettings, pages, sitemapInfo, appUrl }: Se
         <AdminLayout breadcrumbs={[{ label: 'SEO' }]}>
             <Head title="SEO" />
             <form onSubmit={handleSubmit} className="space-y-5">
-                {restored && (
-                    <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-                        <span>Draft restored from your last session.</span>
-                        <button type="button" onClick={discardDraft} className="font-semibold hover:underline">Discard draft</button>
-                    </div>
-                )}
-
                 <div className="flex flex-wrap items-center gap-2">
-                    <div className="flex flex-wrap gap-1 rounded-lg bg-muted p-1">
+                    <div className="flex flex-wrap gap-1 rounded-full bg-muted p-1">
                         {pages.map((p) => (
                             <button
                                 type="button"
                                 key={p.identifier}
                                 onClick={() => setActive(p.identifier)}
                                 className={cn(
-                                    'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+                                    'rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors',
                                     active === p.identifier ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
                                 )}
                             >
@@ -171,7 +171,7 @@ export default function SeoIndex({ seoSettings, pages, sitemapInfo, appUrl }: Se
                             </button>
                         ))}
                     </div>
-                    <Button type="submit" disabled={processing} className="ml-auto">
+                    <Button type="submit" disabled={processing} className="ml-auto rounded-full">
                         {processing && <Loader2 className="h-4 w-4 animate-spin" />}
                         Save all
                     </Button>
@@ -195,8 +195,9 @@ export default function SeoIndex({ seoSettings, pages, sitemapInfo, appUrl }: Se
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="meta_keywords">Meta Keywords</Label>
-                            <Input id="meta_keywords" value={f.meta_keywords} onChange={(e) => update('meta_keywords', e.target.value)} placeholder="keyword1, keyword2" />
+                            <Label>Meta Keywords</Label>
+                            <KeywordsInput value={f.meta_keywords} onChange={(v) => update('meta_keywords', v)} />
+                            <p className="text-xs text-muted-foreground">Separated automatically. Press Enter or comma to add.</p>
                         </div>
 
                         <div className="grid gap-4 sm:grid-cols-2">
@@ -230,10 +231,24 @@ export default function SeoIndex({ seoSettings, pages, sitemapInfo, appUrl }: Se
 
                         <div className="space-y-4 rounded-xl border border-border p-4">
                             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Advanced</p>
-                            <div className="space-y-1.5">
-                                <Label htmlFor="canonical_url">Canonical URL</Label>
-                                <Input id="canonical_url" value={f.canonical_url} onChange={(e) => update('canonical_url', e.target.value)} placeholder="https://gc-communication.in/..." />
-                                {errFor('canonical_url') && <p className="text-xs text-destructive">{errFor('canonical_url')}</p>}
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="og_type">OG type</Label>
+                                    <Select value={f.og_type} onValueChange={(v) => update('og_type', v)}>
+                                        <SelectTrigger id="og_type"><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="website">website</SelectItem>
+                                            <SelectItem value="article">article</SelectItem>
+                                            <SelectItem value="product">product</SelectItem>
+                                            <SelectItem value="profile">profile</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="canonical_url">Canonical URL</Label>
+                                    <Input id="canonical_url" value={f.canonical_url} onChange={(e) => update('canonical_url', e.target.value)} placeholder="https://gc-communication.in/..." />
+                                    {errFor('canonical_url') && <p className="text-xs text-destructive">{errFor('canonical_url')}</p>}
+                                </div>
                             </div>
                             <div className="space-y-1.5">
                                 <Label htmlFor="structured_data">Structured data (JSON-LD)</Label>

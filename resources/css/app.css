@@ -9,9 +9,207 @@
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
-    /* GC Communication brand palette (from the company profile) */
-    --color-brand-primary: #0f0f0f;   /* near-black, the GC serif mark */
-    --color-brand-accent: #22c55e;    /* green */
-    --color-brand-blue: #2563eb;      /* blue */
-    --color-brand-pink: #ec4899;      /* pink */
+    /* GC Communication — monochrome system. Colour enters only through imagery. */
+    --color-ink: #0a0a0a;        /* near-black: primary text & dark surfaces */
+    --color-ink-soft: #525252;   /* secondary text */
+    --color-line: #e5e5e5;       /* hairlines */
+}
+
+:root {
+    --nav-h: 4.5rem;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+    }
+    body {
+        font-feature-settings: 'cv11', 'ss01';
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+    }
+    ::selection {
+        background: #0a0a0a;
+        color: #fff;
+    }
+    html.nav-locked {
+        overflow: hidden;
+    }
+}
+
+/* ============================================================
+   Public navigation — transparent over the hero, solid on scroll
+   ============================================================ */
+.site-nav {
+    color: #ffffff;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition:
+        background-color 0.35s ease,
+        color 0.35s ease,
+        border-color 0.35s ease,
+        backdrop-filter 0.35s ease;
+}
+
+.site-nav.is-solid {
+    color: var(--color-ink);
+    background: rgba(255, 255, 255, 0.82);
+    border-bottom-color: rgba(10, 10, 10, 0.08);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
+}
+
+/* Black GC mark → white when floating over the dark hero */
+.site-nav__logo {
+    filter: invert(1);
+    transition: filter 0.35s ease;
+}
+.site-nav.is-solid .site-nav__logo {
+    filter: none;
+}
+
+.site-nav__link {
+    position: relative;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: inherit;
+    opacity: 0.78;
+    transition: opacity 0.2s ease;
+}
+.site-nav__link:hover {
+    opacity: 1;
+}
+.site-nav__link.is-active {
+    opacity: 1;
+}
+.site-nav__link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s ease;
+}
+.site-nav__link:hover::after,
+.site-nav__link.is-active::after {
+    transform: scaleX(1);
+}
+
+/* Quote CTA — outline over hero, solid black once scrolled */
+.site-nav__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.5rem;
+    padding: 0 1.15rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    color: #fff;
+    background: transparent;
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease;
+}
+.site-nav__cta:hover {
+    background: #fff;
+    color: var(--color-ink);
+    border-color: #fff;
+}
+.site-nav.is-solid .site-nav__cta {
+    background: var(--color-ink);
+    color: #fff;
+    border-color: var(--color-ink);
+}
+.site-nav.is-solid .site-nav__cta:hover {
+    background: #262626;
+    border-color: #262626;
+}
+
+/* Hamburger */
+.site-nav__burger {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: inherit;
+}
+.site-nav__burger span {
+    display: block;
+    width: 1.3rem;
+    height: 1.5px;
+    background: currentColor;
+    border-radius: 2px;
+    transition:
+        transform 0.3s ease,
+        opacity 0.3s ease;
+}
+
+/* Mobile overlay menu */
+.site-nav__mobile {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem 1.5rem 2rem;
+    background: #ffffff;
+    color: var(--color-ink);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.site-nav__mobile.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.site-nav__mobile-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--nav-h);
+}
+.site-nav__close {
+    font-size: 2rem;
+    line-height: 1;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--color-ink);
+}
+.site-nav__mobile-links {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+.site-nav__mobile-links a {
+    padding: 0.6rem 0;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    border-bottom: 1px solid var(--color-line);
+}
+.site-nav__mobile-cta {
+    margin-top: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3.25rem;
+    border-radius: 9999px;
+    background: var(--color-ink);
+    color: #fff !important;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: none !important;
 }

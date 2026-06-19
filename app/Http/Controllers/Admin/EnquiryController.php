@@ -50,7 +50,9 @@ class EnquiryController extends Controller
 
         $enquiry->delete();
 
-        return redirect()->back()
+        // Always return to the list - back() would 404 when deleting from the
+        // enquiry's own Show page (its URL no longer resolves).
+        return redirect()->route('admin.enquiries.index')
             ->with('success', 'Enquiry deleted.');
     }
 }

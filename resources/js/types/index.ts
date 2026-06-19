@@ -61,6 +61,7 @@ export interface SeoSetting {
     meta_keywords?: string[] | string | null;
     og_title?: string | null;
     og_description?: string | null;
+    og_type?: string | null;
     og_image?: string | null;
     canonical_url?: string | null;
     structured_data?: string | null;

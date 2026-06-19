@@ -6,6 +6,9 @@
     $canonical = ($seo?->canonical_url) ?: url()->current();
     $noindex = (bool) ($seo?->noindex);
     $keywords = ($seo && is_array($seo->meta_keywords)) ? implode(', ', $seo->meta_keywords) : null;
+    $ogTitle = ($seo?->og_title) ?: $metaTitle;
+    $ogDescription = ($seo?->og_description) ?: $metaDescription;
+    $ogType = ($seo?->og_type) ?: 'website';
 
     $toUrl = fn ($path) => $path ? (\Illuminate\Support\Str::startsWith($path, ['http://', 'https://']) ? $path : url($path)) : null;
     $ogImageUrl = $toUrl(($seo?->og_image) ?: (data_get($settings, 'default_og_image') ?: data_get($settings, 'org_logo')))
@@ -35,18 +38,22 @@
 <meta name="robots" content="{{ $noindex ? 'noindex, nofollow' : 'index, follow' }}">
 
 {{-- Open Graph --}}
-<meta property="og:type" content="website">
+<meta property="og:type" content="{{ $ogType }}">
 <meta property="og:site_name" content="{{ $siteName }}">
-<meta property="og:title" content="{{ $metaTitle }}">
-@if($metaDescription)<meta property="og:description" content="{{ $metaDescription }}">@endif
+<meta property="og:title" content="{{ $ogTitle }}">
+@if($ogDescription)<meta property="og:description" content="{{ $ogDescription }}">@endif
 <meta property="og:url" content="{{ $canonical }}">
 <meta property="og:image" content="{{ $ogImageUrl }}">
+<meta property="og:image:alt" content="{{ $ogTitle }}">
+<meta property="og:locale" content="en_IN">
 
 {{-- Twitter --}}
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ $metaTitle }}">
-@if($metaDescription)<meta name="twitter:description" content="{{ $metaDescription }}">@endif
+<meta name="twitter:title" content="{{ $ogTitle }}">
+@if($ogDescription)<meta name="twitter:description" content="{{ $ogDescription }}">@endif
 <meta name="twitter:image" content="{{ $ogImageUrl }}">
+<meta name="twitter:image:alt" content="{{ $ogTitle }}">
+@if($twitter = data_get($settings, 'social_twitter'))<meta name="twitter:site" content="{{ $twitter }}">@endif
 
 {{-- Search-engine verification --}}
 @if($gsv = data_get($settings, 'google_site_verification'))<meta name="google-site-verification" content="{{ $gsv }}">@endif
