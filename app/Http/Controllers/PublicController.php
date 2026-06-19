@@ -35,13 +35,27 @@ class PublicController extends Controller
         ]);
     }
 
-    /** Count a download, then hand off the file. */
-    public function downloadCatalogue(int $id): RedirectResponse
+    /** Count a download, then stream the file as an attachment. */
+    public function downloadCatalogue(int $id): \Symfony\Component\HttpFoundation\Response
     {
         $catalogue = Catalogue::active()->findOrFail($id);
         $catalogue->increment('download_count');
 
-        return redirect($catalogue->file);
+        $file = (string) $catalogue->file;
+
+        // External URLs cannot be streamed locally - just redirect.
+        if (\Illuminate\Support\Str::startsWith($file, ['http://', 'https://'])) {
+            return redirect($file);
+        }
+
+        $path = public_path(ltrim($file, '/'));
+        if (!is_file($path)) {
+            return redirect($file);
+        }
+
+        $name = $catalogue->file_name ?: (\Illuminate\Support\Str::slug($catalogue->title) . '.pdf');
+
+        return response()->download($path, $name);
     }
 
     /** Store a contact / enquiry submission from the public site. */
