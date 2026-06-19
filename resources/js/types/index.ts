@@ -56,10 +56,13 @@ export interface User {
 export interface SeoSetting {
     id?: number;
     page_identifier?: string;
-    meta_title: string;
-    meta_description: string;
-    meta_keywords?: string;
+    meta_title?: string | null;
+    meta_description?: string | null;
+    meta_keywords?: string[] | string | null;
+    og_title?: string | null;
+    og_description?: string | null;
     og_image?: string | null;
+    canonical_url?: string | null;
     structured_data?: string | null;
     noindex?: boolean;
 }

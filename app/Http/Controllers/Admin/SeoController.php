@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SeoSetting;
 use App\Traits\Auditable;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
 
@@ -14,21 +15,37 @@ class SeoController extends Controller
     use Auditable;
 
     /**
-     * Allowed page identifiers for SEO settings.
-     * Add your own page identifiers here as you build out your site.
+     * Pages whose SEO is managed, in tab order.
+     * Add an entry here to enable a new page tab.
      */
-    private const ALLOWED_PAGES = ['home'];
+    private const PAGES = [
+        'home' => 'Home Page',
+        'about' => 'About Page',
+        'contact' => 'Contact Page',
+        'products' => 'Products Page',
+        'blog' => 'Blog Page',
+        'legal' => 'Legal Page',
+    ];
+
+    /** @return string[] */
+    private function allowed(): array
+    {
+        return array_keys(self::PAGES);
+    }
 
     public function index()
     {
-        $seoSettings = SeoSetting::orderBy('page_identifier')->get();
+        $existing = SeoSetting::whereIn('page_identifier', $this->allowed())->get()->keyBy('page_identifier');
 
-        // Define your public pages here for SEO management.
-        $pages = [
-            ['identifier' => 'home', 'label' => 'Home Page'],
-            // ['identifier' => 'about', 'label' => 'About Page'],
-            // ['identifier' => 'contact', 'label' => 'Contact Page'],
-        ];
+        $seoSettings = [];
+        foreach (self::PAGES as $id => $label) {
+            $seoSettings[$id] = $existing->get($id) ?? new SeoSetting(['page_identifier' => $id]);
+        }
+
+        $pages = [];
+        foreach (self::PAGES as $id => $label) {
+            $pages[] = ['identifier' => $id, 'label' => $label];
+        }
 
         $sitemapPath = public_path('sitemap.xml');
         $sitemapInfo = [
@@ -41,12 +58,13 @@ class SeoController extends Controller
             'seoSettings' => $seoSettings,
             'pages' => $pages,
             'sitemapInfo' => $sitemapInfo,
+            'appUrl' => config('app.url'),
         ]);
     }
 
     public function edit(string $pageIdentifier)
     {
-        if (!in_array($pageIdentifier, self::ALLOWED_PAGES, true)) {
+        if (!in_array($pageIdentifier, $this->allowed(), true)) {
             abort(404);
         }
 
@@ -62,22 +80,21 @@ class SeoController extends Controller
 
     public function update(Request $request, string $pageIdentifier)
     {
-        if (!in_array($pageIdentifier, self::ALLOWED_PAGES, true)) {
+        if (!in_array($pageIdentifier, $this->allowed(), true)) {
             abort(404);
         }
 
         $validated = $request->validate([
             'meta_title' => 'nullable|string|max:70',
             'meta_description' => 'nullable|string|max:170',
+            'og_title' => 'nullable|string|max:70',
+            'og_description' => 'nullable|string|max:200',
             'og_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'meta_keywords' => 'nullable|string|max:500',
             'structured_data' => 'nullable|string|max:5000',
             'canonical_url' => 'nullable|url|max:500',
             'noindex' => 'boolean',
         ]);
-
-        $validated['meta_title'] = isset($validated['meta_title']) ? strip_tags($validated['meta_title']) : null;
-        $validated['meta_description'] = isset($validated['meta_description']) ? strip_tags($validated['meta_description']) : null;
 
         if (!empty($validated['structured_data'])) {
             json_decode($validated['structured_data']);
@@ -86,82 +103,85 @@ class SeoController extends Controller
             }
         }
 
-        if ($request->hasFile('og_image')) {
-            $path = $request->file('og_image')->store('seo', 'public');
-            $validated['og_image'] = '/storage/' . $path;
-        } else {
-            unset($validated['og_image']);
-        }
-
-        if (isset($validated['meta_keywords'])) {
-            $validated['meta_keywords'] = array_values(array_filter(
-                array_map(fn($kw) => strip_tags(trim($kw)), explode(',', $validated['meta_keywords']))
-            ));
-        }
-
-        $seo = SeoSetting::updateOrCreate(
-            ['page_identifier' => $pageIdentifier],
-            $validated
-        );
-
+        $seo = $this->persistSeo($pageIdentifier, $validated, $request->file('og_image'));
         $this->audit('updated', $seo);
 
-        return redirect()->route('admin.seo.index')
-            ->with('success', 'SEO settings updated successfully.');
+        return redirect()->route('admin.seo.index')->with('success', 'SEO settings updated successfully.');
+    }
+
+    /** Bulk "Save All" for the tabbed editor. */
+    public function updateAll(Request $request)
+    {
+        $request->validate([
+            'pages' => 'array',
+            'pages.*.meta_title' => 'nullable|string|max:70',
+            'pages.*.meta_description' => 'nullable|string|max:170',
+            'pages.*.og_title' => 'nullable|string|max:70',
+            'pages.*.og_description' => 'nullable|string|max:200',
+            'pages.*.meta_keywords' => 'nullable|string|max:500',
+            'pages.*.canonical_url' => 'nullable|url|max:500',
+            'pages.*.structured_data' => 'nullable|json|max:5000',
+            'pages.*.og_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'pages.*.noindex' => 'nullable',
+        ]);
+
+        $pages = $request->input('pages', []);
+        foreach ($this->allowed() as $id) {
+            if (!array_key_exists($id, $pages)) {
+                continue;
+            }
+            $this->persistSeo($id, $pages[$id], $request->file("pages.$id.og_image"));
+        }
+
+        return redirect()->route('admin.seo.index')->with('success', 'SEO settings saved.');
+    }
+
+    /** Sanitise + persist a single page's SEO settings. */
+    private function persistSeo(string $id, array $data, ?UploadedFile $ogImage): SeoSetting
+    {
+        $payload = [
+            'meta_title' => isset($data['meta_title']) ? strip_tags($data['meta_title']) : null,
+            'meta_description' => isset($data['meta_description']) ? strip_tags($data['meta_description']) : null,
+            'og_title' => isset($data['og_title']) ? strip_tags($data['og_title']) : null,
+            'og_description' => isset($data['og_description']) ? strip_tags($data['og_description']) : null,
+            'canonical_url' => $data['canonical_url'] ?? null,
+            'structured_data' => $data['structured_data'] ?? null,
+            'noindex' => filter_var($data['noindex'] ?? false, FILTER_VALIDATE_BOOLEAN),
+        ];
+
+        if (array_key_exists('meta_keywords', $data)) {
+            $payload['meta_keywords'] = $data['meta_keywords']
+                ? array_values(array_filter(array_map(fn ($kw) => strip_tags(trim($kw)), explode(',', $data['meta_keywords']))))
+                : [];
+        }
+
+        if ($ogImage) {
+            $payload['og_image'] = '/storage/' . $ogImage->store('seo', 'public');
+        }
+
+        return SeoSetting::updateOrCreate(['page_identifier' => $id], $payload);
     }
 
     public function regenerateSitemap()
     {
-        $sitemapXml = $this->generateSitemapXml();
+        File::put(public_path('sitemap.xml'), $this->generateSitemapXml());
 
-        $sitemapPath = public_path('sitemap.xml');
-        File::put($sitemapPath, $sitemapXml);
-
-        return redirect()->route('admin.seo.index')
-            ->with('success', 'Sitemap regenerated successfully.');
+        return redirect()->route('admin.seo.index')->with('success', 'Sitemap regenerated successfully.');
     }
 
-    /**
-     * Generate sitemap XML.
-     * Add your dynamic routes here (e.g., blog posts, products).
-     */
     private function generateSitemapXml(): string
     {
-        $urls = [];
         $baseUrl = config('app.url');
-
-        // Static pages - add your public pages here
         $staticPages = [
             ['loc' => '/', 'priority' => '1.0', 'changefreq' => 'weekly'],
-            // ['loc' => '/about', 'priority' => '0.8', 'changefreq' => 'monthly'],
-            // ['loc' => '/contact', 'priority' => '0.7', 'changefreq' => 'monthly'],
+            ['loc' => '/catalogues', 'priority' => '0.7', 'changefreq' => 'monthly'],
         ];
-
-        foreach ($staticPages as $page) {
-            $urls[] = $page;
-        }
-
-        // ──────────────────────────────────────────────
-        // Add dynamic routes here, e.g.:
-        // $posts = BlogPost::published()->get();
-        // foreach ($posts as $post) {
-        //     $urls[] = [
-        //         'loc' => "/blog/{$post->slug}",
-        //         'lastmod' => $post->updated_at->toW3cString(),
-        //         'priority' => '0.7',
-        //         'changefreq' => 'weekly',
-        //     ];
-        // }
-        // ──────────────────────────────────────────────
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-        foreach ($urls as $url) {
+        foreach ($staticPages as $url) {
             $xml .= '  <url>' . "\n";
             $xml .= '    <loc>' . htmlspecialchars($baseUrl . $url['loc'], ENT_XML1) . '</loc>' . "\n";
-            if (isset($url['lastmod'])) {
-                $xml .= '    <lastmod>' . $url['lastmod'] . '</lastmod>' . "\n";
-            }
             $xml .= '    <changefreq>' . $url['changefreq'] . '</changefreq>' . "\n";
             $xml .= '    <priority>' . $url['priority'] . '</priority>' . "\n";
             $xml .= '  </url>' . "\n";

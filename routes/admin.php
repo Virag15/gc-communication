@@ -50,6 +50,7 @@ Route::middleware(['auth', AdminAccess::class])->group(function () {
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.users.destroy');
 
         Route::get('/seo', [SeoController::class, 'index'])->name('admin.seo.index');
+        Route::post('/seo', [SeoController::class, 'updateAll'])->name('admin.seo.update-all');
         Route::post('/seo/sitemap/regenerate', [SeoController::class, 'regenerateSitemap'])->name('admin.seo.sitemap.regenerate');
         Route::get('/seo/{pageIdentifier}/edit', [SeoController::class, 'edit'])->where('pageIdentifier', '[a-z]+')->name('admin.seo.edit');
         Route::put('/seo/{pageIdentifier}', [SeoController::class, 'update'])->where('pageIdentifier', '[a-z]+')->name('admin.seo.update');

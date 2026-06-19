@@ -13,6 +13,8 @@ class SeoSetting extends Model
         'page_identifier',
         'meta_title',
         'meta_description',
+        'og_title',
+        'og_description',
         'og_image',
         'meta_keywords',
         'structured_data',
