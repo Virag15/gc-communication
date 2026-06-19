@@ -61,8 +61,8 @@ Then open **http://localhost:8000/admin/login**.
 
 | Role        | Email                       | Password   |
 | ----------- | --------------------------- | ---------- |
-| Super admin | `admin@gccommunication.in`  | `password` |
-| Editor      | `editor@gccommunication.in` | `password` |
+| Super admin | `admin@gc-communication.in`  | `password` |
+| Editor      | `editor@gc-communication.in` | `password` |
 
 ---
 

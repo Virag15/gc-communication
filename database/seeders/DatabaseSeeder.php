@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
         // and again later without violating the unique-email constraint.
         // Override the defaults via SEED_ADMIN_* environment variables.
         User::updateOrCreate(
-            ['email' => env('SEED_ADMIN_EMAIL', 'admin@gccommunication.in')],
+            ['email' => env('SEED_ADMIN_EMAIL', 'admin@gc-communication.in')],
             [
                 'name' => env('SEED_ADMIN_NAME', 'GC Administrator'),
                 'password' => Hash::make(env('SEED_ADMIN_PASSWORD', 'password')),
@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['email' => env('SEED_EDITOR_EMAIL', 'editor@gccommunication.in')],
+            ['email' => env('SEED_EDITOR_EMAIL', 'editor@gc-communication.in')],
             [
                 'name' => env('SEED_EDITOR_NAME', 'GC Editor'),
                 'password' => Hash::make(env('SEED_EDITOR_PASSWORD', 'password')),

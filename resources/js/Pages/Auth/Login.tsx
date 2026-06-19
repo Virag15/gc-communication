@@ -74,7 +74,7 @@ export default function Login() {
                                     type="email"
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
-                                    placeholder="you@gccommunication.in"
+                                    placeholder="you@gc-communication.in"
                                     autoComplete="email"
                                     autoFocus
                                     required
