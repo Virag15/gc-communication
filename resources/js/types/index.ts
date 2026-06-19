@@ -166,3 +166,50 @@ export interface Breadcrumb {
     label: string;
     href?: string;
 }
+
+/** A single line in a saved Bill of Materials. */
+export interface BomLineItem {
+    system: 'LSPS' | 'SSPS';
+    sr: number;
+    name: string;
+    code: string;
+    finish: string;
+    qty: number;
+    mrp: number;
+    amount: number;
+    custom?: boolean;
+}
+
+/** A saved Bill of Materials (estimate). */
+export interface Bom {
+    id: number;
+    name: string;
+    customer: string | null;
+    material: 'W' | 'P';
+    width_ft: number;
+    height_ft: number;
+    lsps_fixed: number;
+    lsps_movable: number;
+    ssps_fixed: number;
+    ssps_movable: number;
+    line_items: BomLineItem[];
+    lsps_total: number;
+    ssps_total: number;
+    grand_total: number;
+    template: string;
+    accent: string;
+    notes: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+/** A lighter BOM row for the listing table. */
+export type BomListItem = Pick<Bom, 'id' | 'name' | 'customer' | 'material' | 'width_ft' | 'height_ft' | 'grand_total' | 'created_at' | 'updated_at'>;
+
+/** Letterhead details merged into the BOM PDF. */
+export interface BomCompany {
+    name: string;
+    phone: string;
+    email: string;
+    address: string;
+}

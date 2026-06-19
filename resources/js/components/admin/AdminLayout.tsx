@@ -80,7 +80,7 @@ const navGroups: NavGroup[] = [
             { name: 'Brands', href: '/admin/brands', icon: Package },
             { name: 'Catalogues', href: '/admin/catalogues', icon: FileText },
             { name: 'Enquiries', href: '/admin/enquiries', icon: Inbox },
-            { name: 'BOM Calculator', href: '/admin/bom', icon: Calculator },
+            { name: 'BOM', href: '/admin/bom', icon: Calculator },
         ],
     },
     {

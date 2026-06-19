@@ -80,7 +80,13 @@ Route::middleware(['auth', AdminAccess::class])->group(function () {
         Route::get('/enquiries/{id}', [EnquiryController::class, 'show'])->where('id', '[0-9]+')->name('admin.enquiries.show');
         Route::delete('/enquiries/{id}', [EnquiryController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.enquiries.destroy');
 
-        // BOM calculator (client-side tool).
+        // BOM creator (configure -> customise line items -> save -> download PDF).
         Route::get('/bom', [BomController::class, 'index'])->name('admin.bom.index');
+        Route::get('/bom/create', [BomController::class, 'create'])->name('admin.bom.create');
+        Route::post('/bom', [BomController::class, 'store'])->name('admin.bom.store');
+        Route::get('/bom/{id}', [BomController::class, 'show'])->where('id', '[0-9]+')->name('admin.bom.show');
+        Route::get('/bom/{id}/edit', [BomController::class, 'edit'])->where('id', '[0-9]+')->name('admin.bom.edit');
+        Route::put('/bom/{id}', [BomController::class, 'update'])->where('id', '[0-9]+')->name('admin.bom.update');
+        Route::delete('/bom/{id}', [BomController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.bom.destroy');
     });
 });
