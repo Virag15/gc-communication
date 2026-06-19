@@ -195,7 +195,7 @@ export function DataTable<TData>({
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 py-3">
                 <p className="text-xs sm:text-sm text-muted-foreground">
                     {useServerPagination
-                        ? `${serverPagination!.from ?? 0}–${serverPagination!.to ?? 0} of ${serverPagination!.total}`
+                        ? `${serverPagination!.from ?? 0}-${serverPagination!.to ?? 0} of ${serverPagination!.total}`
                         : `${table.getFilteredRowModel().rows.length} row(s)`}
                 </p>
                 {showPagination && (

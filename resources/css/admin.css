@@ -73,11 +73,11 @@
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
     --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.879 0.169 91.605);
-    --chart-2: oklch(0.769 0.188 70.08);
-    --chart-3: oklch(0.666 0.179 58.318);
-    --chart-4: oklch(0.555 0.163 48.998);
-    --chart-5: oklch(0.473 0.137 46.201);
+    --chart-1: oklch(0.723 0.192 149.58);
+    --chart-2: oklch(0.546 0.215 262.88);
+    --chart-3: oklch(0.656 0.212 354.31);
+    --chart-4: oklch(0.769 0.165 70.08);
+    --chart-5: oklch(0.606 0.219 292.72);
     --radius: 0.625rem;
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
@@ -87,9 +87,9 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
-    /* GC Communication brand accent (refined gold) */
-    --brand-accent: oklch(0.74 0.09 85);
-    --brand-accent-foreground: oklch(0.205 0 0);
+    /* GC Communication brand accent (green, from the company profile) */
+    --brand-accent: oklch(0.723 0.192 149.58);
+    --brand-accent-foreground: oklch(0.985 0 0);
 }
 
 .dark {
@@ -111,11 +111,11 @@
     --border: oklch(1 0 0 / 10%);
     --input: oklch(1 0 0 / 15%);
     --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.879 0.169 91.605);
-    --chart-2: oklch(0.769 0.188 70.08);
-    --chart-3: oklch(0.666 0.179 58.318);
-    --chart-4: oklch(0.555 0.163 48.998);
-    --chart-5: oklch(0.473 0.137 46.201);
+    --chart-1: oklch(0.723 0.192 149.58);
+    --chart-2: oklch(0.546 0.215 262.88);
+    --chart-3: oklch(0.656 0.212 354.31);
+    --chart-4: oklch(0.769 0.165 70.08);
+    --chart-5: oklch(0.606 0.219 292.72);
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.922 0 0);
@@ -124,8 +124,8 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
-    /* GC Communication brand accent (refined gold) */
-    --brand-accent: oklch(0.80 0.10 85);
+    /* GC Communication brand accent (green, from the company profile) */
+    --brand-accent: oklch(0.78 0.17 150);
     --brand-accent-foreground: oklch(0.205 0 0);
 }
 

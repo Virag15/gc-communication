@@ -9,6 +9,8 @@ import {
     PanelLeft,
     Globe,
     Settings,
+    Package,
+    FileText,
     type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -33,7 +35,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { Toaster } from '@/components/ui/sonner';
 import { type Breadcrumb as BreadcrumbType } from '@/types';
 
 interface NavItemData {
@@ -70,9 +71,18 @@ const navGroups: NavGroup[] = [
     // },
     // ──────────────────────────────────────────────
     {
+        label: 'Content',
+        color: 'bg-pink-500',
+        textColor: 'text-pink-600',
+        items: [
+            { name: 'Brands', href: '/admin/brands', icon: Package },
+            { name: 'Catalogues', href: '/admin/catalogues', icon: FileText },
+        ],
+    },
+    {
         label: 'System',
-        color: 'bg-orange-500',
-        textColor: 'text-orange-600',
+        color: 'bg-blue-500',
+        textColor: 'text-blue-600',
         items: [
             { name: 'Users', href: '/admin/users', icon: Users },
             { name: 'SEO', href: '/admin/seo', icon: Globe },
@@ -255,7 +265,6 @@ export default function AdminLayout({ children, title, breadcrumbs }: AdminLayou
 
     return (
         <div className="flex h-screen overflow-hidden bg-background">
-            <Toaster />
 
             {/* Mobile overlay */}
             <div

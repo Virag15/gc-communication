@@ -2,6 +2,7 @@ import { createInertiaApp, router } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
 import type { ComponentType } from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
 
 const errorMessages: Record<number, string> = {
@@ -56,6 +57,7 @@ createInertiaApp({
         createRoot(el).render(
             <TooltipProvider>
                 <App {...props} />
+                <Toaster />
             </TooltipProvider>
         );
     },

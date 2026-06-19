@@ -6,7 +6,7 @@
     $consent = filter_var(data_get($settings, 'consent_enabled'), FILTER_VALIDATE_BOOLEAN);
 @endphp
 @if($consent)
-    {{-- Google Consent Mode v2 — default denied until the visitor accepts --}}
+    {{-- Google Consent Mode v2 - default denied until the visitor accepts --}}
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}

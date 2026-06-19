@@ -175,9 +175,9 @@ export default function Dashboard({ stats, usersTrend, recentActivity, filters }
         }
         const sameYear = dateRange.from.getFullYear() === dateRange.to.getFullYear();
         if (sameYear) {
-            return `${format(dateRange.from, 'MMM d')} – ${format(dateRange.to, 'MMM d, yyyy')}`;
+            return `${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d, yyyy')}`;
         }
-        return `${format(dateRange.from, 'MMM d, yyyy')} – ${format(dateRange.to, 'MMM d, yyyy')}`;
+        return `${format(dateRange.from, 'MMM d, yyyy')} - ${format(dateRange.to, 'MMM d, yyyy')}`;
     }, [dateRange]);
 
     const statCards: { title: string; value: number; sub: string; icon: LucideIcon }[] = [
@@ -187,7 +187,7 @@ export default function Dashboard({ stats, usersTrend, recentActivity, filters }
 
     return (
         <AdminLayout breadcrumbs={[{ label: 'Dashboard' }]}>
-            <Head title={`Dashboard — ${adminName}`} />
+            <Head title={`Dashboard - ${adminName}`} />
             <div className="space-y-6">
                 {/* Toolbar */}
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

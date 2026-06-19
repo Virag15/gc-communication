@@ -130,7 +130,7 @@ class SeoController extends Controller
         $urls = [];
         $baseUrl = config('app.url');
 
-        // Static pages — add your public pages here
+        // Static pages - add your public pages here
         $staticPages = [
             ['loc' => '/', 'priority' => '1.0', 'changefreq' => 'weekly'],
             // ['loc' => '/about', 'priority' => '0.8', 'changefreq' => 'monthly'],

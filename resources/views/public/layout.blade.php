@@ -19,6 +19,11 @@
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/app.ts'])
+
+    {{-- Arbitrary head code from admin → Site Settings (trusted) --}}
+    @if($head = data_get($settings ?? [], 'custom_head_html'))
+        {!! $head !!}
+    @endif
 </head>
 <body class="antialiased font-sans bg-white text-neutral-900">
     {{-- GTM / Meta Pixel noscript fallbacks --}}
@@ -27,5 +32,10 @@
     @yield('content')
 
     <x-cookie-consent :settings="$settings ?? []" />
+
+    {{-- Arbitrary end-of-body code from admin → Site Settings (trusted) --}}
+    @if($body = data_get($settings ?? [], 'custom_body_html'))
+        {!! $body !!}
+    @endif
 </body>
 </html>

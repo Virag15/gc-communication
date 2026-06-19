@@ -1,4 +1,4 @@
-# GC Communication — Admin Panel
+# GC Communication - Admin Panel
 
 The internal admin panel for **GC Communication**, built with **Laravel 13**,
 **Inertia.js**, **React 19 + TypeScript**, **Tailwind CSS 4**, and **shadcn/ui**.
@@ -21,16 +21,16 @@ The internal admin panel for **GC Communication**, built with **Laravel 13**,
 
 ## What's inside
 
-- **Admin layout** — collapsible sidebar, mobile-responsive, breadcrumbs
-- **Authentication** — login, logout, session auth with rate limiting
-- **Role-based access** — `super_admin`, `admin`, `editor` with middleware guards
-- **User management** — full CRUD with search, server-side pagination, roles
-- **SEO management** — per-page meta, OG image, structured data, sitemap
-- **Dashboard** — stat cards, registration trend chart, recent-activity feed
-- **Audit trail** — automatic create/update/delete logging
-- **Error pages** — 403/404/419/429/500/503 (Inertia + Blade)
-- **Security** — security headers, OWASP test suite, CSRF, XSS sanitisation
-- **Fully typed** — strict TypeScript across every component, page, and hook
+- **Admin layout** - collapsible sidebar, mobile-responsive, breadcrumbs
+- **Authentication** - login, logout, session auth with rate limiting
+- **Role-based access** - `super_admin`, `admin`, `editor` with middleware guards
+- **User management** - full CRUD with search, server-side pagination, roles
+- **SEO management** - per-page meta, OG image, structured data, sitemap
+- **Dashboard** - stat cards, registration trend chart, recent-activity feed
+- **Audit trail** - automatic create/update/delete logging
+- **Error pages** - 403/404/419/429/500/503 (Inertia + Blade)
+- **Security** - security headers, OWASP test suite, CSRF, XSS sanitisation
+- **Fully typed** - strict TypeScript across every component, page, and hook
 
 ---
 
@@ -57,7 +57,7 @@ composer dev
 
 Then open **http://localhost:8000/admin/login**.
 
-**Default credentials** (change immediately — configurable via `SEED_ADMIN_*`):
+**Default credentials** (change immediately - configurable via `SEED_ADMIN_*`):
 
 | Role        | Email                       | Password   |
 | ----------- | --------------------------- | ---------- |
@@ -68,22 +68,22 @@ Then open **http://localhost:8000/admin/login**.
 
 ## Deployment (your server, with Docker)
 
-The whole stack — app, web server, queue worker, and MySQL — runs from a single
+The whole stack - app, web server, queue worker, and MySQL - runs from a single
 `docker compose`. On the server (Docker + Docker Compose installed):
 
 ```bash
 # 1. Get the code onto the server, then:
 make setup      # creates .env from .env.docker.example and generates APP_KEY
 
-# 2. Edit .env — set strong DB_PASSWORD / DB_ROOT_PASSWORD (and APP_URL).
+# 2. Edit .env - set strong DB_PASSWORD / DB_ROOT_PASSWORD (and APP_URL).
 
 # 3. Build and start everything:
 make up         # docker compose up -d --build
 ```
 
 The app is now served on **http://your-server:8080** (change `APP_PORT` in `.env`).
-On first boot, migrations run automatically and — because `APP_SEED=true` in the
-Docker template — the initial admin user is created. Set `APP_SEED=false` afterwards.
+On first boot, migrations run automatically and - because `APP_SEED=true` in the
+Docker template - the initial admin user is created. Set `APP_SEED=false` afterwards.
 
 Put a TLS-terminating reverse proxy (nginx, Caddy, Traefik) or your platform's load
 balancer in front of port 8080 for HTTPS.
@@ -147,19 +147,19 @@ tsconfig.json                 # strict TypeScript configuration
 - Strict mode is enabled (`tsconfig.json`).
 - Shared/domain types live in [`resources/js/types/index.ts`](resources/js/types/index.ts).
 - Inertia shared props (`auth`, `admin`, `flash`) are globally typed via
-  [`resources/js/types/inertia.d.ts`](resources/js/types/inertia.d.ts) — so
+  [`resources/js/types/inertia.d.ts`](resources/js/types/inertia.d.ts) - so
   `usePage().props` is fully typed everywhere.
 - Type-check without building: `npm run type-check`.
 - `npm run build` runs `tsc --noEmit` before bundling, so type errors fail the build.
 
 ## Branding
 
-- **Name** — `ADMIN_NAME` in `.env` (default `GC Communication`).
-- **Logo** — `ADMIN_LOGO` points at `/images/gc-logo.svg` (vector); replace the file to swap it.
-- **Colours** — brand tokens in `resources/css/app.css`; shadcn theme (oklch) in
+- **Name** - `ADMIN_NAME` in `.env` (default `GC Communication`).
+- **Logo** - `ADMIN_LOGO` points at `/images/gc-logo.svg` (vector); replace the file to swap it.
+- **Colours** - brand tokens in `resources/css/app.css`; shadcn theme (oklch) in
   `resources/css/admin.css`.
-- **Favicon** — `public/favicon.svg` (the GC monogram).
-- **Partner brands** — logos in `public/images/brands/` are shown on the login screen.
+- **Favicon** - `public/favicon.svg` (the GC monogram).
+- **Partner brands** - logos in `public/images/brands/` are shown on the login screen.
 
 ## Public website, SEO & analytics
 
@@ -170,10 +170,10 @@ panel (`/admin`) stays private and `noindex`.
 **Everything is dynamic**, managed in **Admin → Site Settings** (stored in the
 `site_settings` table, cached). Every public page automatically includes:
 
-- `<x-tracking-head>` — **Google Tag Manager, GA4, Meta Pixel**, and **Google Consent Mode**
-- `<x-seo-head>` — title/description, canonical, robots, **Open Graph + Twitter** cards,
+- `<x-tracking-head>` - **Google Tag Manager, GA4, Meta Pixel**, and **Google Consent Mode**
+- `<x-seo-head>` - title/description, canonical, robots, **Open Graph + Twitter** cards,
   **Google/Bing verification**, and **JSON-LD** Organization data
-- `<x-cookie-consent>` — optional GDPR cookie banner wired to Consent Mode
+- `<x-cookie-consent>` - optional GDPR cookie banner wired to Consent Mode
 
 Per-page SEO (title, description, OG image, structured data, noindex) comes from
 **Admin → SEO**; the XML sitemap is generated there. `robots.txt` allows the site
@@ -187,7 +187,7 @@ and disallows `/admin`.
 @section('content') ... @endsection
 ```
 ```php
-// routes/web.php — pass settings + (optional) per-page SEO
+// routes/web.php - pass settings + (optional) per-page SEO
 Route::get('/about', fn () => view('public.about', [
     'settings' => \App\Models\SiteSetting::map(),
     'seo' => \App\Models\SeoSetting::where('page_identifier', 'about')->first(),
@@ -195,8 +195,28 @@ Route::get('/about', fn () => view('public.about', [
 ```
 Add `about` to `SeoController::ALLOWED_PAGES` to manage its SEO. Tags + SEO inject automatically.
 
-> Tip: route GA4, Meta Pixel, Google Ads, etc. **through GTM** — then you only set the
+> Tip: route GA4, Meta Pixel, Google Ads, etc. **through GTM** - then you only set the
 > GTM ID here and manage the rest in the GTM dashboard with no code changes.
+
+## Managing the public site (no code changes)
+
+Everything on the public site is editable from the admin:
+
+- **Brands** (`/admin/brands`) - logo upload, description, display order, active toggle. Drives the homepage brand cards and strip.
+- **Catalogues** (`/admin/catalogues`) - upload PDF line cards / catalogues; they appear on `/catalogues`, grouped by brand.
+- **Site Settings** (`/admin/settings`) - hero image + copy, headline stats, contact details, social links, SEO defaults, and a **Custom code** box for any extra `<head>` / `<body>` snippet.
+
+### Connect GTM / GA4 / Meta Pixel
+
+Paste **only the ID** into Site Settings (not the whole script); it is injected on every public page automatically.
+
+| Tool | Where to get it | Looks like |
+| ---- | --------------- | ---------- |
+| Google Tag Manager | tagmanager.google.com -> your container | `GTM-XXXXXXX` |
+| Google Analytics 4 | analytics.google.com -> Admin -> Data streams -> web stream -> Measurement ID | `G-XXXXXXXXXX` |
+| Meta Pixel | business.facebook.com -> Events Manager -> Data sources -> your pixel | a numeric ID |
+
+Tip: route GA4 and the Pixel **through GTM** and you only need the GTM ID. Turn on the cookie-consent banner (Google Consent Mode) under Privacy & Consent.
 
 ## Adding a CRUD module
 

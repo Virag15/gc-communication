@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Login() {
     const { admin } = usePage().props;
@@ -21,7 +22,13 @@ export default function Login() {
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        post('/admin/login');
+        if (!data.email || !data.password) {
+            toast.error('Enter your email and password.');
+            return;
+        }
+        post('/admin/login', {
+            onError: (errs) => toast.error(errs.email || errs.password || 'Sign in failed. Please try again.'),
+        });
     }
 
     return (
@@ -44,7 +51,7 @@ export default function Login() {
                                 Your control center for catalogue, brands, and customers.
                             </p>
                             <footer className="text-sm text-muted-foreground">
-                                {admin.name || 'GC Communication'} — Admin
+                                {admin.name || 'GC Communication'} - Admin
                             </footer>
                         </blockquote>
                     </div>
@@ -66,7 +73,7 @@ export default function Login() {
                                 Enter your credentials to access the admin panel
                             </p>
                         </div>
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
                                 <Input

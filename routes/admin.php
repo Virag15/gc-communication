@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\CatalogueController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SiteSettingController;
@@ -50,8 +52,24 @@ Route::middleware(['auth', AdminAccess::class])->group(function () {
         Route::get('/seo/{pageIdentifier}/edit', [SeoController::class, 'edit'])->where('pageIdentifier', '[a-z]+')->name('admin.seo.edit');
         Route::put('/seo/{pageIdentifier}', [SeoController::class, 'update'])->where('pageIdentifier', '[a-z]+')->name('admin.seo.update');
 
-        // Site settings — analytics IDs, verification codes, SEO defaults, consent.
+        // Site settings - analytics IDs, verification codes, SEO defaults, consent.
         Route::get('/settings', [SiteSettingController::class, 'index'])->name('admin.settings.index');
         Route::post('/settings', [SiteSettingController::class, 'update'])->name('admin.settings.update');
+
+        // Brands (update via POST to allow logo uploads).
+        Route::get('/brands', [BrandController::class, 'index'])->name('admin.brands.index');
+        Route::get('/brands/create', [BrandController::class, 'create'])->name('admin.brands.create');
+        Route::post('/brands', [BrandController::class, 'store'])->name('admin.brands.store');
+        Route::get('/brands/{id}/edit', [BrandController::class, 'edit'])->where('id', '[0-9]+')->name('admin.brands.edit');
+        Route::post('/brands/{id}', [BrandController::class, 'update'])->where('id', '[0-9]+')->name('admin.brands.update');
+        Route::delete('/brands/{id}', [BrandController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.brands.destroy');
+
+        // Catalogues / PDF downloads (update via POST to allow file uploads).
+        Route::get('/catalogues', [CatalogueController::class, 'index'])->name('admin.catalogues.index');
+        Route::get('/catalogues/create', [CatalogueController::class, 'create'])->name('admin.catalogues.create');
+        Route::post('/catalogues', [CatalogueController::class, 'store'])->name('admin.catalogues.store');
+        Route::get('/catalogues/{id}/edit', [CatalogueController::class, 'edit'])->where('id', '[0-9]+')->name('admin.catalogues.edit');
+        Route::post('/catalogues/{id}', [CatalogueController::class, 'update'])->where('id', '[0-9]+')->name('admin.catalogues.update');
+        Route::delete('/catalogues/{id}', [CatalogueController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.catalogues.destroy');
     });
 });

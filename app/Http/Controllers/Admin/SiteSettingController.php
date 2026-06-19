@@ -16,12 +16,19 @@ class SiteSettingController extends Controller
         'site_name', 'default_meta_title', 'default_meta_description',
         'contact_email', 'contact_phone', 'contact_address',
         'social_facebook', 'social_instagram', 'social_linkedin',
+        // Homepage hero + headline stats
+        'hero_eyebrow', 'hero_headline', 'hero_subtext',
+        'stat_years', 'stat_lines', 'stat_orders', 'stat_fill_rate',
+        'locations', 'since_year',
+        // Arbitrary code injected into every public page
+        'custom_head_html', 'custom_body_html',
     ];
 
     /** Uploaded image settings: form key => storage sub-directory. */
     private const IMAGE_KEYS = [
         'default_og_image' => 'og',
         'org_logo' => 'branding',
+        'hero_image' => 'hero',
     ];
 
     public function index()

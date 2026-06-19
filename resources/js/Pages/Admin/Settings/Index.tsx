@@ -33,6 +33,18 @@ interface SettingsForm {
     social_facebook: string;
     social_instagram: string;
     social_linkedin: string;
+    hero_eyebrow: string;
+    hero_headline: string;
+    hero_subtext: string;
+    hero_image: File | null;
+    stat_years: string;
+    stat_lines: string;
+    stat_orders: string;
+    stat_fill_rate: string;
+    locations: string;
+    since_year: string;
+    custom_head_html: string;
+    custom_body_html: string;
     consent_enabled: boolean;
 }
 
@@ -133,6 +145,18 @@ export default function SettingsIndex({ settings, appUrl }: SettingsIndexProps) 
         social_facebook: s('social_facebook'),
         social_instagram: s('social_instagram'),
         social_linkedin: s('social_linkedin'),
+        hero_eyebrow: s('hero_eyebrow'),
+        hero_headline: s('hero_headline'),
+        hero_subtext: s('hero_subtext'),
+        hero_image: null,
+        stat_years: s('stat_years'),
+        stat_lines: s('stat_lines'),
+        stat_orders: s('stat_orders'),
+        stat_fill_rate: s('stat_fill_rate'),
+        locations: s('locations'),
+        since_year: s('since_year'),
+        custom_head_html: s('custom_head_html'),
+        custom_body_html: s('custom_body_html'),
         consent_enabled: settings.consent_enabled === '1' || settings.consent_enabled === 'true',
     });
 
@@ -144,6 +168,7 @@ export default function SettingsIndex({ settings, appUrl }: SettingsIndexProps) 
             onSuccess: () => {
                 setData('default_og_image', null);
                 setData('org_logo', null);
+                setData('hero_image', null);
                 toast.success('Site settings saved.');
             },
             onError: () => toast.error('Please fix the errors and try again.'),
@@ -187,13 +212,20 @@ export default function SettingsIndex({ settings, appUrl }: SettingsIndexProps) 
                             <CardHeader>
                                 <CardTitle>Tracking &amp; Analytics</CardTitle>
                                 <CardDescription>
-                                    Prefer Google Tag Manager — you can load GA4, Meta Pixel, Google Ads and more inside it.
+                                    Prefer Google Tag Manager - you can load GA4, Meta Pixel, Google Ads and more inside it.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="grid gap-4 sm:grid-cols-2">
                                 <Field id="gtm_id" label="Google Tag Manager ID" value={data.gtm_id} onChange={(v) => setData('gtm_id', v)} placeholder="GTM-XXXXXXX" error={errors.gtm_id} />
                                 <Field id="ga4_id" label="Google Analytics 4 ID" value={data.ga4_id} onChange={(v) => setData('ga4_id', v)} placeholder="G-XXXXXXXXXX" error={errors.ga4_id} />
                                 <Field id="meta_pixel_id" label="Meta Pixel ID" value={data.meta_pixel_id} onChange={(v) => setData('meta_pixel_id', v)} placeholder="123456789012345" error={errors.meta_pixel_id} />
+                                <div className="space-y-1.5 rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground sm:col-span-2">
+                                    <p className="font-semibold text-foreground">How to find these IDs</p>
+                                    <p><span className="font-medium text-foreground">GTM:</span> tagmanager.google.com to your container; the ID at the top reads GTM-XXXXXXX.</p>
+                                    <p><span className="font-medium text-foreground">GA4:</span> analytics.google.com to Admin to Data streams to your web stream to Measurement ID (G-XXXXXXXXXX).</p>
+                                    <p><span className="font-medium text-foreground">Meta Pixel:</span> business.facebook.com to Events Manager to Data sources to your pixel; copy the numeric Pixel ID.</p>
+                                    <p>Paste just the ID, not the script. It is injected on every public page automatically. Tip: route GA4 and the Pixel through GTM and you only need the GTM ID.</p>
+                                </div>
                             </CardContent>
                         </Card>
 
@@ -217,7 +249,7 @@ export default function SettingsIndex({ settings, appUrl }: SettingsIndexProps) 
                                 <Field id="site_name" label="Site name" value={data.site_name} onChange={(v) => setData('site_name', v)} placeholder="GC Communication" error={errors.site_name} />
                                 <ImageField id="default_og_image" label="Default social image" currentUrl={settings.default_og_image ?? null} file={data.default_og_image} onSelect={(f) => setData('default_og_image', f)} hint="Shown when pages are shared (1200×630 recommended)." error={errors.default_og_image} />
                                 <div className="sm:col-span-2">
-                                    <Field id="default_meta_title" label="Default meta title" value={data.default_meta_title} onChange={(v) => setData('default_meta_title', v)} placeholder="GC Communication — Electrical Distribution" hint={`${data.default_meta_title.length}/70 characters`} error={errors.default_meta_title} />
+                                    <Field id="default_meta_title" label="Default meta title" value={data.default_meta_title} onChange={(v) => setData('default_meta_title', v)} placeholder="GC Communication - Electrical Distribution" hint={`${data.default_meta_title.length}/70 characters`} error={errors.default_meta_title} />
                                 </div>
                                 <div className="space-y-1.5 sm:col-span-2">
                                     <Label htmlFor="default_meta_description">Default meta description</Label>
@@ -225,6 +257,40 @@ export default function SettingsIndex({ settings, appUrl }: SettingsIndexProps) 
                                     <p className="text-xs text-muted-foreground">{data.default_meta_description.length}/200 characters</p>
                                     {errors.default_meta_description && <p className="text-xs text-destructive">{errors.default_meta_description}</p>}
                                 </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Homepage hero</CardTitle>
+                                <CardDescription>The top banner of the public website.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="grid gap-4 sm:grid-cols-2">
+                                <Field id="hero_eyebrow" label="Eyebrow / tagline" value={data.hero_eyebrow} onChange={(v) => setData('hero_eyebrow', v)} placeholder="Authorised low-voltage switchgear distributor" error={errors.hero_eyebrow} />
+                                <ImageField id="hero_image" label="Hero background image" currentUrl={settings.hero_image ?? null} file={data.hero_image} onSelect={(f) => setData('hero_image', f)} hint="A wide warehouse or counter photo works best." error={errors.hero_image} />
+                                <div className="sm:col-span-2">
+                                    <Field id="hero_headline" label="Headline" value={data.hero_headline} onChange={(v) => setData('hero_headline', v)} placeholder="The right switchgear on the shelf, and out the same day." error={errors.hero_headline} />
+                                </div>
+                                <div className="space-y-1.5 sm:col-span-2">
+                                    <Label htmlFor="hero_subtext">Sub-text</Label>
+                                    <Textarea id="hero_subtext" rows={2} value={data.hero_subtext} onChange={(e) => setData('hero_subtext', e.target.value)} placeholder="Short supporting sentence under the headline." />
+                                    {errors.hero_subtext && <p className="text-xs text-destructive">{errors.hero_subtext}</p>}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Headline stats</CardTitle>
+                                <CardDescription>The numbers shown in the momentum band on the homepage.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="grid gap-4 sm:grid-cols-2">
+                                <Field id="stat_years" label="Years in trade" value={data.stat_years} onChange={(v) => setData('stat_years', v)} placeholder="13" error={errors.stat_years} />
+                                <Field id="since_year" label="Operating since (year)" value={data.since_year} onChange={(v) => setData('since_year', v)} placeholder="2013" error={errors.since_year} />
+                                <Field id="stat_lines" label="Lines held in stock" value={data.stat_lines} onChange={(v) => setData('stat_lines', v)} placeholder="2,100+" error={errors.stat_lines} />
+                                <Field id="stat_orders" label="Orders dispatched" value={data.stat_orders} onChange={(v) => setData('stat_orders', v)} placeholder="25k+" error={errors.stat_orders} />
+                                <Field id="stat_fill_rate" label="Order fill rate" value={data.stat_fill_rate} onChange={(v) => setData('stat_fill_rate', v)} placeholder="98%" error={errors.stat_fill_rate} />
+                                <Field id="locations" label="Locations" value={data.locations} onChange={(v) => setData('locations', v)} placeholder="Nashik & Jalgaon" error={errors.locations} />
                             </CardContent>
                         </Card>
 

@@ -53,7 +53,7 @@ const errors: Record<number, ErrorDefinition> = {
     },
     503: {
         title: 'Under Maintenance',
-        description: 'We\'re performing scheduled maintenance. Please check back shortly — we\'ll be up and running soon.',
+        description: 'We\'re performing scheduled maintenance. Please check back shortly - we\'ll be up and running soon.',
         icon: Construction,
         color: 'text-amber-500',
         bg: 'bg-amber-500/10',
@@ -120,7 +120,7 @@ export default function Error({ status, retryAfter }: ErrorProps) {
 
     return (
         <>
-            <Head title={`${status} — ${error.title}`} />
+            <Head title={`${status} - ${error.title}`} />
             <div className="flex min-h-screen items-center justify-center bg-background p-4">
                 <Card className="w-full max-w-md border-border/50 shadow-lg">
                     <CardContent className="flex flex-col items-center text-center p-8 space-y-6">

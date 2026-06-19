@@ -18,7 +18,7 @@ function getTz(): string {
  * Format: "March 30, 2026, 1:00 PM"
  */
 export function formatDateTime(value: DateInput): string {
-    if (!value) return '—';
+    if (!value) return '-';
     return new Date(value).toLocaleString('en-US', {
         month: 'long',
         day: 'numeric',
@@ -34,7 +34,7 @@ export function formatDateTime(value: DateInput): string {
  * Format: "March 30, 2026"
  */
 export function formatDate(value: DateInput): string {
-    if (!value) return '—';
+    if (!value) return '-';
     return new Date(value).toLocaleDateString('en-US', {
         month: 'long',
         day: 'numeric',
@@ -47,7 +47,7 @@ export function formatDate(value: DateInput): string {
  * Format: "1:00 PM"
  */
 export function formatTime(value: DateInput): string {
-    if (!value) return '—';
+    if (!value) return '-';
     return new Date(value).toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
@@ -60,7 +60,7 @@ export function formatTime(value: DateInput): string {
  * Short date for chart axes: "Mar 30"
  */
 export function formatShortDate(value: DateInput): string {
-    if (!value) return '—';
+    if (!value) return '-';
     return new Date(value).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',

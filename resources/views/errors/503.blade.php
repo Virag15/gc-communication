@@ -1,7 +1,7 @@
 @extends('errors.layout', [
     'status' => 503,
     'title' => 'Under Maintenance',
-    'description' => 'We\'re performing scheduled maintenance. Please check back shortly — we\'ll be up and running soon.',
+    'description' => 'We\'re performing scheduled maintenance. Please check back shortly - we\'ll be up and running soon.',
     'iconBg' => 'bg-amber-500/10',
 ])
 

@@ -38,6 +38,22 @@ class UpdateSiteSettingsRequest extends FormRequest
             'social_instagram' => ['nullable', 'url', 'max:255'],
             'social_linkedin' => ['nullable', 'url', 'max:255'],
 
+            // Homepage hero + headline stats
+            'hero_eyebrow' => ['nullable', 'string', 'max:120'],
+            'hero_headline' => ['nullable', 'string', 'max:200'],
+            'hero_subtext' => ['nullable', 'string', 'max:500'],
+            'hero_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'stat_years' => ['nullable', 'string', 'max:20'],
+            'stat_lines' => ['nullable', 'string', 'max:20'],
+            'stat_orders' => ['nullable', 'string', 'max:20'],
+            'stat_fill_rate' => ['nullable', 'string', 'max:20'],
+            'locations' => ['nullable', 'string', 'max:120'],
+            'since_year' => ['nullable', 'string', 'max:10'],
+
+            // Arbitrary code injected on every public page (admin-trusted)
+            'custom_head_html' => ['nullable', 'string', 'max:20000'],
+            'custom_body_html' => ['nullable', 'string', 'max:20000'],
+
             // Privacy
             'consent_enabled' => ['boolean'],
         ];

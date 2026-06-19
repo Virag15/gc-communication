@@ -109,6 +109,35 @@ export interface Paginated<T> {
     links: PaginationLink[];
 }
 
+/** A distributed brand shown on the public site and managed in admin. */
+export interface Brand {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    logo: string | null;
+    website: string | null;
+    sort_order: number;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+/** A downloadable catalogue / line card (PDF). */
+export interface Catalogue {
+    id: number;
+    title: string;
+    brand_id: number | null;
+    brand?: Brand | null;
+    file: string;
+    file_name: string | null;
+    file_size: number | null;
+    sort_order: number;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
 /** A breadcrumb entry rendered in the admin header. */
 export interface Breadcrumb {
     label: string;

@@ -16,7 +16,7 @@ export interface UseAutosaveResult {
  * `File` values (and arrays containing files) are skipped, since they cannot be
  * serialized.
  *
- * `setData` is intentionally permissive — it accepts the Inertia `useForm`
+ * `setData` is intentionally permissive - it accepts the Inertia `useForm`
  * setter, whose key/value types are too narrow to express here generically.
  */
 export function useAutosave(

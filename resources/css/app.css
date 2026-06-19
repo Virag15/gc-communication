@@ -9,7 +9,9 @@
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
-    /* GC Communication brand palette */
-    --color-brand-primary: #0f0f0f;   /* elegant near-black (the GC serif mark) */
-    --color-brand-accent: #c9a961;    /* refined gold */
+    /* GC Communication brand palette (from the company profile) */
+    --color-brand-primary: #0f0f0f;   /* near-black, the GC serif mark */
+    --color-brand-accent: #22c55e;    /* green */
+    --color-brand-blue: #2563eb;      /* blue */
+    --color-brand-pink: #ec4899;      /* pink */
 }

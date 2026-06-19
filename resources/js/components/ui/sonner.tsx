@@ -7,7 +7,8 @@ const Toaster = ({
   return (
     <Sonner
       theme="light"
-      position="top-left"
+      position="top-right"
+      richColors
       className="toaster group"
       icons={{
         success: (
@@ -28,27 +29,30 @@ const Toaster = ({
       }}
       style={
         {
-          "--normal-bg": "#FFFFFF",
-          "--normal-text": "#000000",
-          "--normal-border": "#D4C4A8",
-          "--success-bg": "#2D5F3F",
-          "--success-text": "#FFFFFF",
-          "--success-border": "#2D5F3F",
-          "--error-bg": "#E63946",
-          "--error-text": "#FFFFFF",
-          "--error-border": "#E63946",
-          "--warning-bg": "#C9A961",
-          "--warning-text": "#000000",
-          "--warning-border": "#C9A961",
-          "--info-bg": "#2D5F3F",
-          "--info-text": "#FFFFFF",
-          "--info-border": "#2D5F3F",
-          "--border-radius": "var(--radius)",
+          // Sleek, borderless, translucent toasts tinted by action.
+          "--normal-bg": "rgba(255,255,255,0.82)",
+          "--normal-text": "#171717",
+          "--normal-border": "transparent",
+          "--success-bg": "rgba(34,197,94,0.16)",
+          "--success-text": "#047857",
+          "--success-border": "transparent",
+          "--error-bg": "rgba(239,68,68,0.16)",
+          "--error-text": "#b91c1c",
+          "--error-border": "transparent",
+          "--warning-bg": "rgba(245,158,11,0.18)",
+          "--warning-text": "#92400e",
+          "--warning-border": "transparent",
+          "--info-bg": "rgba(37,99,235,0.14)",
+          "--info-text": "#1d4ed8",
+          "--info-border": "transparent",
+          "--border-radius": "0.75rem",
         } as React.CSSProperties
       }
       toastOptions={{
         classNames: {
-          toast: "cn-toast",
+          toast: "backdrop-blur-md shadow-lg font-medium",
+          title: "font-semibold",
+          description: "opacity-80",
         },
       }}
       {...props} />
