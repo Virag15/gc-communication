@@ -168,6 +168,40 @@ export interface Breadcrumb {
     href?: string;
 }
 
+/** A catalog product the estimate creator searches and prices. */
+export interface Product {
+    id: number;
+    item_no: string;
+    name: string;
+    spec: string | null;
+    price: number;
+    mrp: number | null;
+    brand_id: number | null;
+    brand?: Brand | null;
+    category: string | null;
+    bulk: string | null;
+    image: string | null;
+    is_active: boolean;
+    sort_order: number;
+    created_at: string;
+    updated_at: string;
+}
+
+/** A customer selectable in the estimate creator. */
+export interface Customer {
+    id: number;
+    name: string;
+    company: string | null;
+    phone: string | null;
+    email: string | null;
+    address: string | null;
+    gstin: string | null;
+    ref_by: string | null;
+    notes: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
 /** A single line in a saved Bill of Materials. */
 export interface BomLineItem {
     system: 'LSPS' | 'SSPS';

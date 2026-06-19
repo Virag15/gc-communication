@@ -24,6 +24,43 @@ class PublicController extends Controller
         ]);
     }
 
+    /** Brands we hold (authorised distribution). */
+    public function brands(): View
+    {
+        return view('public.brands', [
+            'settings' => SiteSetting::map(),
+            'seo' => null,
+            'brands' => Brand::active()->ordered()->get(),
+        ]);
+    }
+
+    /** Product range / line card overview. */
+    public function range(): View
+    {
+        return view('public.range', [
+            'settings' => SiteSetting::map(),
+            'seo' => SeoSetting::where('page_identifier', 'products')->first(),
+        ]);
+    }
+
+    /** About the company. */
+    public function about(): View
+    {
+        return view('public.about', [
+            'settings' => SiteSetting::map(),
+            'seo' => SeoSetting::where('page_identifier', 'about')->first(),
+        ]);
+    }
+
+    /** Contact / enquiry page. */
+    public function contact(): View
+    {
+        return view('public.contact', [
+            'settings' => SiteSetting::map(),
+            'seo' => SeoSetting::where('page_identifier', 'contact')->first(),
+        ]);
+    }
+
     /** Public catalogue / downloads page. */
     public function catalogues(): View
     {

@@ -25,11 +25,17 @@
         {!! $head !!}
     @endif
 </head>
-<body class="antialiased font-sans bg-white text-neutral-900">
+<body class="font-sans antialiased bg-white text-neutral-900">
     {{-- GTM / Meta Pixel noscript fallbacks --}}
     <x-tracking-body :settings="$settings ?? []" />
 
-    @yield('content')
+    <x-public.navbar :over-hero="$navOverHero ?? false" />
+
+    <main class="{{ ($navOverHero ?? false) ? '' : 'pt-[var(--nav-h)]' }}">
+        @yield('content')
+    </main>
+
+    <x-public.footer />
 
     <x-cookie-consent :settings="$settings ?? []" />
 

@@ -4,8 +4,10 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BomController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CatalogueController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\UserController;
@@ -74,6 +76,22 @@ Route::middleware(['auth', AdminAccess::class])->group(function () {
         Route::get('/catalogues/{id}/edit', [CatalogueController::class, 'edit'])->where('id', '[0-9]+')->name('admin.catalogues.edit');
         Route::post('/catalogues/{id}', [CatalogueController::class, 'update'])->where('id', '[0-9]+')->name('admin.catalogues.update');
         Route::delete('/catalogues/{id}', [CatalogueController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.catalogues.destroy');
+
+        // Products (catalog searched by the estimate creator; update via POST for image uploads).
+        Route::get('/products', [ProductController::class, 'index'])->name('admin.products.index');
+        Route::get('/products/create', [ProductController::class, 'create'])->name('admin.products.create');
+        Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
+        Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->where('id', '[0-9]+')->name('admin.products.edit');
+        Route::post('/products/{id}', [ProductController::class, 'update'])->where('id', '[0-9]+')->name('admin.products.update');
+        Route::delete('/products/{id}', [ProductController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.products.destroy');
+
+        // Customers (selectable in the estimate creator).
+        Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
+        Route::get('/customers/create', [CustomerController::class, 'create'])->name('admin.customers.create');
+        Route::post('/customers', [CustomerController::class, 'store'])->name('admin.customers.store');
+        Route::get('/customers/{id}/edit', [CustomerController::class, 'edit'])->where('id', '[0-9]+')->name('admin.customers.edit');
+        Route::put('/customers/{id}', [CustomerController::class, 'update'])->where('id', '[0-9]+')->name('admin.customers.update');
+        Route::delete('/customers/{id}', [CustomerController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.customers.destroy');
 
         // Enquiries (contact submissions from the public site).
         Route::get('/enquiries', [EnquiryController::class, 'index'])->name('admin.enquiries.index');
