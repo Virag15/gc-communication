@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Loader2, Image as ImageIcon } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Upload } from 'lucide-react';
 
 interface SettingsIndexProps {
     settings: Record<string, string | null>;
@@ -73,6 +73,7 @@ interface ImageFieldProps {
 }
 
 function ImageField({ id, label, currentUrl, file, onSelect, hint, error }: ImageFieldProps) {
+    const inputRef = useRef<HTMLInputElement>(null);
     const preview = useMemo(() => (file ? URL.createObjectURL(file) : currentUrl), [file, currentUrl]);
     useEffect(() => {
         return () => {
@@ -91,9 +92,15 @@ function ImageField({ id, label, currentUrl, file, onSelect, hint, error }: Imag
                         <ImageIcon className="h-5 w-5 text-muted-foreground" />
                     )}
                 </div>
-                <div className="min-w-0 space-y-1">
-                    <Input id={id} type="file" accept="image/*" className="text-xs" onChange={(e) => onSelect(e.target.files?.[0] ?? null)} />
-                    {file && <p className="truncate text-xs text-muted-foreground">{file.name}</p>}
+                <div className="min-w-0 space-y-1.5">
+                    <input ref={inputRef} id={id} type="file" accept="image/*" className="sr-only" onChange={(e) => onSelect(e.target.files?.[0] ?? null)} />
+                    <Button type="button" variant="outline" size="sm" onClick={() => inputRef.current?.click()}>
+                        <Upload className="h-3.5 w-3.5" />
+                        {file || currentUrl ? 'Change image' : 'Upload image'}
+                    </Button>
+                    <p className="truncate text-xs text-muted-foreground">
+                        {file ? file.name : currentUrl ? 'Current image set' : 'PNG, JPG or WebP'}
+                    </p>
                 </div>
             </div>
             {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
@@ -173,9 +180,9 @@ export default function SettingsIndex({ settings, appUrl }: SettingsIndexProps) 
                     </Button>
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-3">
+                <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
                     {/* Form */}
-                    <div className="space-y-6 lg:col-span-2">
+                    <div className="space-y-6">
                         <Card>
                             <CardHeader>
                                 <CardTitle>Tracking &amp; Analytics</CardTitle>
@@ -227,7 +234,7 @@ export default function SettingsIndex({ settings, appUrl }: SettingsIndexProps) 
                                 <CardDescription>Used in the footer and in structured data (JSON-LD) for SEO.</CardDescription>
                             </CardHeader>
                             <CardContent className="grid gap-4 sm:grid-cols-2">
-                                <ImageField id="org_logo" label="Organization logo" currentUrl={settings.org_logo ?? null} file={data.org_logo} onSelect={(f) => setData('org_logo', f)} hint="SVG or PNG. Falls back to the bundled GC logo." error={errors.org_logo} />
+                                <ImageField id="org_logo" label="Organization logo" currentUrl={settings.org_logo ?? null} file={data.org_logo} onSelect={(f) => setData('org_logo', f)} hint="SVG, PNG or WebP. Falls back to the bundled GC logo." error={errors.org_logo} />
                                 <Field id="contact_email" label="Contact email" type="email" value={data.contact_email} onChange={(v) => setData('contact_email', v)} placeholder="info@gc-communication.in" error={errors.contact_email} />
                                 <Field id="contact_phone" label="Contact phone" value={data.contact_phone} onChange={(v) => setData('contact_phone', v)} placeholder="+91 ..." error={errors.contact_phone} />
                                 <Field id="social_facebook" label="Facebook URL" value={data.social_facebook} onChange={(v) => setData('social_facebook', v)} placeholder="https://facebook.com/..." error={errors.social_facebook} />
@@ -266,7 +273,7 @@ export default function SettingsIndex({ settings, appUrl }: SettingsIndexProps) 
                     </div>
 
                     {/* Live preview */}
-                    <aside className="lg:col-span-1">
+                    <aside>
                         <div className="space-y-4 lg:sticky lg:top-4">
                             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Live preview</p>
 
