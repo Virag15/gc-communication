@@ -110,10 +110,11 @@ nginx + php-fpm with a queue worker, all supervised in one container.
 
 ```
 app/
-├── Http/Controllers/Admin/   # Dashboard, User, SEO, Auth controllers
+├── Http/Controllers/         # PublicController (public site)
+│   └── Admin/                # Dashboard, User, SEO, SiteSetting, Auth
 ├── Http/Middleware/          # AdminAccess, AdminOnly, SecurityHeaders, Inertia
 ├── Http/Requests/Admin/      # Form-request validation
-├── Models/                   # User, SeoSetting, AuditLog
+├── Models/                   # User, SeoSetting, SiteSetting, AuditLog
 └── Traits/                   # Auditable (automatic audit logging)
 config/admin.php              # Brand name, logo, timezone
 database/                     # migrations, factories, seeders
@@ -128,8 +129,11 @@ resources/
 │   ├── hooks/                # useDebounce, useAutosave, use-mobile
 │   ├── lib/                  # dates.ts, utils.ts
 │   ├── types/                # index.ts (domain types) + Inertia/global augmentations
-│   └── Pages/                # Admin/*, Auth/Login, Error
-└── views/app.blade.php       # Inertia root template
+│   └── Pages/                # Admin/* (incl. Settings), Auth/Login, Error
+└── views/
+    ├── app.blade.php         # Inertia root (admin)
+    ├── public/               # server-rendered public site (layout + home)
+    └── components/           # <x-seo-head> <x-tracking-head> <x-cookie-consent>
 routes/                       # admin.php (admin) · web.php (public)
 tests/Feature/Admin/          # Auth, User, SEO, OWASP security tests
 Dockerfile · docker-compose.yml · Makefile
@@ -156,6 +160,43 @@ tsconfig.json                 # strict TypeScript configuration
   `resources/css/admin.css`.
 - **Favicon** — `public/favicon.svg` (the GC monogram).
 - **Partner brands** — logos in `public/images/brands/` are shown on the login screen.
+
+## Public website, SEO & analytics
+
+The public, SEO-optimised site is **server-rendered with Blade** (best for search
+engines) and lives in `resources/views/public/`. It is served from `/`; the admin
+panel (`/admin`) stays private and `noindex`.
+
+**Everything is dynamic**, managed in **Admin → Site Settings** (stored in the
+`site_settings` table, cached). Every public page automatically includes:
+
+- `<x-tracking-head>` — **Google Tag Manager, GA4, Meta Pixel**, and **Google Consent Mode**
+- `<x-seo-head>` — title/description, canonical, robots, **Open Graph + Twitter** cards,
+  **Google/Bing verification**, and **JSON-LD** Organization data
+- `<x-cookie-consent>` — optional GDPR cookie banner wired to Consent Mode
+
+Per-page SEO (title, description, OG image, structured data, noindex) comes from
+**Admin → SEO**; the XML sitemap is generated there. `robots.txt` allows the site
+and disallows `/admin`.
+
+### Add a public page
+
+```blade
+{{-- resources/views/public/about.blade.php --}}
+@extends('public.layout')
+@section('content') ... @endsection
+```
+```php
+// routes/web.php — pass settings + (optional) per-page SEO
+Route::get('/about', fn () => view('public.about', [
+    'settings' => \App\Models\SiteSetting::map(),
+    'seo' => \App\Models\SeoSetting::where('page_identifier', 'about')->first(),
+]));
+```
+Add `about` to `SeoController::ALLOWED_PAGES` to manage its SEO. Tags + SEO inject automatically.
+
+> Tip: route GA4, Meta Pixel, Google Ads, etc. **through GTM** — then you only set the
+> GTM ID here and manage the rest in the GTM dashboard with no code changes.
 
 ## Adding a CRUD module
 

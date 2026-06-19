@@ -8,6 +8,7 @@ import {
     PanelLeftClose,
     PanelLeft,
     Globe,
+    Settings,
     type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -75,6 +76,7 @@ const navGroups: NavGroup[] = [
         items: [
             { name: 'Users', href: '/admin/users', icon: Users },
             { name: 'SEO', href: '/admin/seo', icon: Globe },
+            { name: 'Site Settings', href: '/admin/settings', icon: Settings },
         ],
     },
 ];

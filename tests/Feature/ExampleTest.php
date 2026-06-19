@@ -9,10 +9,11 @@ class ExampleTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_the_application_redirects_root_to_admin(): void
+    public function test_the_public_home_page_loads(): void
     {
         $response = $this->get('/');
 
-        $response->assertRedirect('/admin');
+        $response->assertStatus(200);
+        $response->assertSee('GC Communication', false);
     }
 }

@@ -28,7 +28,7 @@ class AuthController extends Controller
 
         $throttleKey = Str::lower($request->input('email')) . '|' . $request->ip();
 
-        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+        if (RateLimiter::tooManyAttempts($throttleKey, 7)) {
             $seconds = RateLimiter::availableIn($throttleKey);
             return back()->withErrors([
                 'email' => "Too many login attempts. Please try again in {$seconds} seconds.",

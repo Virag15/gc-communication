@@ -430,7 +430,7 @@ class AuthTest extends TestCase
     // Rate Limiting Tests
     // -------------------------------------------------------------------------
 
-    public function test_five_failed_attempts_triggers_rate_limiting(): void
+    public function test_seven_failed_attempts_triggers_rate_limiting(): void
     {
         RateLimiter::clear('admin@example.com|127.0.0.1');
 
@@ -441,7 +441,7 @@ class AuthTest extends TestCase
             'is_active' => true,
         ]);
 
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 7; $i++) {
             $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class)
                 ->post('/admin/login', [
                     'email' => 'admin@example.com',
@@ -473,7 +473,7 @@ class AuthTest extends TestCase
             'is_active' => true,
         ]);
 
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 7; $i++) {
             $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class)
                 ->post('/admin/login', [
                     'email' => 'admin@example.com',
@@ -505,7 +505,7 @@ class AuthTest extends TestCase
             'is_active' => true,
         ]);
 
-        // Accumulate 4 failed attempts (just under the limit)
+        // Accumulate 4 failed attempts (under the limit of 7)
         for ($i = 0; $i < 4; $i++) {
             $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class)
                 ->post('/admin/login', [
@@ -526,8 +526,8 @@ class AuthTest extends TestCase
         // Logout to test again
         $this->post('/admin/logout');
 
-        // After clearing, we should be able to fail 5 times again from scratch
-        for ($i = 0; $i < 5; $i++) {
+        // After clearing, we should be able to fail 7 times again from scratch
+        for ($i = 0; $i < 7; $i++) {
             $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class)
                 ->post('/admin/login', [
                     'email' => 'admin@example.com',
@@ -535,7 +535,7 @@ class AuthTest extends TestCase
                 ]);
         }
 
-        // This 6th attempt should trigger rate limiting
+        // This 8th attempt should trigger rate limiting
         $response = $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class)
             ->post('/admin/login', [
                 'email' => 'admin@example.com',
@@ -569,7 +569,7 @@ class AuthTest extends TestCase
         ]);
 
         // Exhaust rate limit for admin@example.com
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 7; $i++) {
             $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class)
                 ->post('/admin/login', [
                     'email' => 'admin@example.com',
@@ -644,6 +644,8 @@ class AuthTest extends TestCase
             'ADMIN@EXAMPLE.COM',
             'Admin@example.com',
             'admin@Example.COM',
+            'aDmin@example.com',
+            'admin@EXAMPLE.com',
         ];
 
         foreach ($emails as $email) {
@@ -654,7 +656,7 @@ class AuthTest extends TestCase
                 ]);
         }
 
-        // 6th attempt should be rate limited regardless of case
+        // 8th attempt should be rate limited regardless of case
         $response = $this->withoutMiddleware(\Illuminate\Routing\Middleware\ThrottleRequests::class)
             ->post('/admin/login', [
                 'email' => 'admin@example.com',

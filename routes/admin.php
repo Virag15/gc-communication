@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SeoController;
+use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Middleware\AdminAccess;
 use App\Http\Middleware\AdminOnly;
@@ -14,15 +15,13 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Auth routes (no auth middleware).
-// Viewing the login form is generous so page loads never lock you out.
-// Login attempts get a coarse per-IP backstop; precise brute-force protection
-// (5 tries per email+IP) lives in AuthController::login().
-Route::get('/login', [AuthController::class, 'showLogin'])
-    ->middleware('throttle:60,1')
-    ->name('admin.login');
-Route::post('/login', [AuthController::class, 'login'])
-    ->middleware('throttle:20,1');
+// Auth routes (no auth middleware). One shared throttle (7/min per IP) covers
+// both viewing the form and submitting. Precise brute-force protection
+// (7 tries per email+IP) lives in AuthController::login().
+Route::middleware('throttle:7,1')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('admin.login');
+    Route::post('/login', [AuthController::class, 'login']);
+});
 
 // Protected admin routes (auth + role check)
 Route::middleware(['auth', AdminAccess::class])->group(function () {
@@ -50,5 +49,9 @@ Route::middleware(['auth', AdminAccess::class])->group(function () {
         Route::post('/seo/sitemap/regenerate', [SeoController::class, 'regenerateSitemap'])->name('admin.seo.sitemap.regenerate');
         Route::get('/seo/{pageIdentifier}/edit', [SeoController::class, 'edit'])->where('pageIdentifier', '[a-z]+')->name('admin.seo.edit');
         Route::put('/seo/{pageIdentifier}', [SeoController::class, 'update'])->where('pageIdentifier', '[a-z]+')->name('admin.seo.update');
+
+        // Site settings — analytics IDs, verification codes, SEO defaults, consent.
+        Route::get('/settings', [SiteSettingController::class, 'index'])->name('admin.settings.index');
+        Route::put('/settings', [SiteSettingController::class, 'update'])->name('admin.settings.update');
     });
 });
