@@ -4,9 +4,10 @@ import { Head, Link, router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { DataTable, SortableHeader } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, ExternalLink } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, X, ExternalLink } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { type Catalogue } from '@/types';
 
@@ -23,6 +24,7 @@ function formatFileSize(bytes: number | null): string {
 export default function CataloguesIndex({ catalogues }: CataloguesIndexProps) {
     const [deleteId, setDeleteId] = useState<number | null>(null);
     const [processing, setProcessing] = useState(false);
+    const [search, setSearch] = useState('');
 
     const handleDelete = () => {
         if (deleteId) {
@@ -94,8 +96,25 @@ export default function CataloguesIndex({ catalogues }: CataloguesIndexProps) {
         },
     ], []);
 
+    const filtered = useMemo(
+        () => catalogues.filter((c) => {
+            const q = search.toLowerCase();
+            return c.title.toLowerCase().includes(q) || (c.brand?.name ?? '').toLowerCase().includes(q);
+        }),
+        [catalogues, search],
+    );
+
     const toolbar = (
         <div className="flex flex-col gap-2 w-full sm:flex-row sm:items-center">
+            <div className="relative w-full sm:w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search catalogues..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+            </div>
+            {search && (
+                <Button variant="ghost" size="sm" onClick={() => setSearch('')} className="text-destructive hover:text-destructive shrink-0">
+                    <X className="h-4 w-4 mr-1" /> Reset
+                </Button>
+            )}
             <Button asChild className="w-full sm:w-auto sm:ml-auto">
                 <Link href="/admin/catalogues/create">
                     <Plus className="h-4 w-4 mr-2" />
@@ -110,7 +129,7 @@ export default function CataloguesIndex({ catalogues }: CataloguesIndexProps) {
             <Head title="Catalogues" />
             <DataTable
                 columns={columns}
-                data={catalogues}
+                data={filtered}
                 toolbar={toolbar}
                 emptyMessage="No catalogues found."
             />

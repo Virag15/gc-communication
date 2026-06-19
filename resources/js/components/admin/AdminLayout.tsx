@@ -11,6 +11,8 @@ import {
     Settings,
     Package,
     FileText,
+    Inbox,
+    Calculator,
     type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -77,6 +79,8 @@ const navGroups: NavGroup[] = [
         items: [
             { name: 'Brands', href: '/admin/brands', icon: Package },
             { name: 'Catalogues', href: '/admin/catalogues', icon: FileText },
+            { name: 'Enquiries', href: '/admin/enquiries', icon: Inbox },
+            { name: 'BOM Calculator', href: '/admin/bom', icon: Calculator },
         ],
     },
     {

@@ -303,11 +303,30 @@
                     <a href="mailto:{{ $email }}" class="mt-8 inline-block rounded-md bg-emerald-500 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-400">Email us</a>
                 @endif
             </div>
-            <div class="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-6 text-sm">
-                @if($phone)<p><span class="text-neutral-400">Phone</span><br><a class="font-medium hover:underline" href="tel:{{ $phone }}">{{ $phone }}</a></p>@endif
-                @if($email)<p><span class="text-neutral-400">Email</span><br><a class="font-medium hover:underline" href="mailto:{{ $email }}">{{ $email }}</a></p>@endif
-                @if($address)<p><span class="text-neutral-400">Address</span><br><span class="font-medium">{{ $address }}</span></p>@endif
-                @unless($phone || $email || $address)<p class="text-neutral-400">Add your contact details in the admin → Site Settings.</p>@endunless
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                @if(session('success'))
+                    <div class="mb-4 rounded-lg bg-emerald-500/15 p-3 text-sm text-emerald-200">{{ session('success') }}</div>
+                @endif
+                <form method="POST" action="{{ route('enquiry.store') }}" class="space-y-3">
+                    @csrf
+                    @php $inputCls = 'w-full rounded-md border border-white/15 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-neutral-400 focus:border-emerald-400 focus:outline-none'; @endphp
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <input name="name" required value="{{ old('name') }}" placeholder="Name" class="{{ $inputCls }}">
+                        <input name="email" type="email" required value="{{ old('email') }}" placeholder="Email" class="{{ $inputCls }}">
+                        <input name="phone" value="{{ old('phone') }}" placeholder="Phone (optional)" class="{{ $inputCls }}">
+                        <input name="company" value="{{ old('company') }}" placeholder="Company (optional)" class="{{ $inputCls }}">
+                    </div>
+                    <textarea name="message" required rows="3" placeholder="Your requirement or BOM" class="{{ $inputCls }}">{{ old('message') }}</textarea>
+                    @error('name')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                    @error('email')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                    @error('message')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                    <button type="submit" class="w-full rounded-md bg-emerald-500 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-400">Send enquiry</button>
+                </form>
+                <div class="mt-4 space-y-1 border-t border-white/10 pt-4 text-xs text-neutral-400">
+                    @if($phone)<p>Phone: <a class="hover:underline" href="tel:{{ $phone }}">{{ $phone }}</a></p>@endif
+                    @if($email)<p>Email: <a class="hover:underline" href="mailto:{{ $email }}">{{ $email }}</a></p>@endif
+                    @if($address)<p>{{ $address }}</p>@endif
+                </div>
             </div>
         </div>
     </section>

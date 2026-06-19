@@ -15,3 +15,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicController::class, 'home'])->name('home');
 Route::get('/catalogues', [PublicController::class, 'catalogues'])->name('catalogues');
+Route::get('/catalogues/{id}/download', [PublicController::class, 'downloadCatalogue'])->whereNumber('id')->name('catalogues.download');
+Route::post('/enquiry', [PublicController::class, 'storeEnquiry'])->name('enquiry.store');

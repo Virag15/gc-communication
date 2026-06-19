@@ -4,9 +4,10 @@ import { Head, Link, router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { DataTable, SortableHeader } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, X, Image as ImageIcon } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { type Brand } from '@/types';
 
@@ -17,6 +18,7 @@ interface BrandsIndexProps {
 export default function BrandsIndex({ brands }: BrandsIndexProps) {
     const [deleteId, setDeleteId] = useState<number | null>(null);
     const [processing, setProcessing] = useState(false);
+    const [search, setSearch] = useState('');
 
     const handleDelete = () => {
         if (deleteId) {
@@ -87,8 +89,22 @@ export default function BrandsIndex({ brands }: BrandsIndexProps) {
         },
     ], []);
 
+    const filtered = useMemo(
+        () => brands.filter((b) => b.name.toLowerCase().includes(search.toLowerCase())),
+        [brands, search],
+    );
+
     const toolbar = (
         <div className="flex flex-col gap-2 w-full sm:flex-row sm:items-center">
+            <div className="relative w-full sm:w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search brands..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+            </div>
+            {search && (
+                <Button variant="ghost" size="sm" onClick={() => setSearch('')} className="text-destructive hover:text-destructive shrink-0">
+                    <X className="h-4 w-4 mr-1" /> Reset
+                </Button>
+            )}
             <Button asChild className="w-full sm:w-auto sm:ml-auto">
                 <Link href="/admin/brands/create">
                     <Plus className="h-4 w-4 mr-2" />
@@ -103,7 +119,7 @@ export default function BrandsIndex({ brands }: BrandsIndexProps) {
             <Head title="Brands" />
             <DataTable
                 columns={columns}
-                data={brands}
+                data={filtered}
                 toolbar={toolbar}
                 emptyMessage="No brands found."
             />

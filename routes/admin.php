@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\BomController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CatalogueController;
+use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SiteSettingController;
@@ -71,5 +73,13 @@ Route::middleware(['auth', AdminAccess::class])->group(function () {
         Route::get('/catalogues/{id}/edit', [CatalogueController::class, 'edit'])->where('id', '[0-9]+')->name('admin.catalogues.edit');
         Route::post('/catalogues/{id}', [CatalogueController::class, 'update'])->where('id', '[0-9]+')->name('admin.catalogues.update');
         Route::delete('/catalogues/{id}', [CatalogueController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.catalogues.destroy');
+
+        // Enquiries (contact submissions from the public site).
+        Route::get('/enquiries', [EnquiryController::class, 'index'])->name('admin.enquiries.index');
+        Route::get('/enquiries/{id}', [EnquiryController::class, 'show'])->where('id', '[0-9]+')->name('admin.enquiries.show');
+        Route::delete('/enquiries/{id}', [EnquiryController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.enquiries.destroy');
+
+        // BOM calculator (client-side tool).
+        Route::get('/bom', [BomController::class, 'index'])->name('admin.bom.index');
     });
 });

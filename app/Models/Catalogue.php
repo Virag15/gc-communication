@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Catalogue extends Model
 {
     protected $fillable = [
-        'title', 'brand_id', 'file', 'file_name', 'file_size', 'sort_order', 'is_active',
+        'title', 'brand_id', 'file', 'file_name', 'file_size', 'download_count', 'sort_order', 'is_active',
     ];
 
     protected function casts(): array
@@ -18,6 +18,7 @@ class Catalogue extends Model
             'is_active' => 'boolean',
             'sort_order' => 'integer',
             'file_size' => 'integer',
+            'download_count' => 'integer',
             'brand_id' => 'integer',
         ];
     }

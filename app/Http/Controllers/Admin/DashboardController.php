@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuditLog;
+use App\Models\Brand;
+use App\Models\Catalogue;
+use App\Models\Enquiry;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,8 +24,12 @@ class DashboardController extends Controller
         $from = $request->input('from') ? Carbon::parse($request->input('from'))->startOfDay() : $to->copy()->subDays(30)->startOfDay();
 
         $stats = [
-            'total_users'  => User::count(),
-            'active_users' => User::where('is_active', true)->count(),
+            'total_users'   => User::count(),
+            'active_users'  => User::where('is_active', true)->count(),
+            'brands'        => Brand::count(),
+            'catalogues'    => Catalogue::count(),
+            'downloads'     => (int) Catalogue::sum('download_count'),
+            'new_enquiries' => Enquiry::where('status', 'new')->count(),
         ];
 
         $usersTrend = User::selectRaw('DATE(created_at) as date, COUNT(*) as count')
@@ -33,23 +39,10 @@ class DashboardController extends Controller
             ->orderBy('date')
             ->get();
 
-        $recentActivity = AuditLog::with('user')
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get()
-            ->map(fn($log) => [
-                'id' => $log->id,
-                'user' => $log->user?->name ?? 'System',
-                'action' => $log->action,
-                'model' => class_basename($log->auditable_type),
-                'created_at' => $log->created_at,
-            ]);
-
         return Inertia::render('Admin/Dashboard', [
-            'stats'          => $stats,
-            'usersTrend'     => $usersTrend,
-            'recentActivity' => $recentActivity,
-            'filters'        => [
+            'stats'      => $stats,
+            'usersTrend' => $usersTrend,
+            'filters'    => [
                 'from' => $request->input('from'),
                 'to'   => $request->input('to'),
             ],

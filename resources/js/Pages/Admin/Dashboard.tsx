@@ -2,18 +2,17 @@ import { useState, useMemo, type ReactNode } from 'react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Users, UserCheck, CalendarIcon, type LucideIcon } from 'lucide-react';
+import { Users, UserCheck, CalendarIcon, Package, FileText, Download, Inbox, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { formatShortDate, formatDate, formatDateTime, toISODate } from '@/lib/dates';
+import { formatShortDate, formatDate, toISODate } from '@/lib/dates';
 import { format, subDays, startOfDay, startOfYear } from 'date-fns';
 import { type DateRange } from 'react-day-picker';
-import { type AuditLogEntry, type DashboardStats, type TrendPoint } from '@/types';
+import { type DashboardStats, type TrendPoint } from '@/types';
 
 // `chart.jsx` is still untyped JS, so mirror the shadcn ChartConfig shape locally.
 type ChartConfig = Record<string, { label?: ReactNode; color?: string }>;
@@ -118,14 +117,13 @@ const presets: DatePreset[] = [
 interface DashboardProps {
     stats: DashboardStats | undefined;
     usersTrend: TrendPoint[] | undefined;
-    recentActivity: AuditLogEntry[] | undefined;
     filters?: {
         from?: string;
         to?: string;
     };
 }
 
-export default function Dashboard({ stats, usersTrend, recentActivity, filters }: DashboardProps) {
+export default function Dashboard({ stats, usersTrend, filters }: DashboardProps) {
     const { props } = usePage();
     const adminName = props.admin?.name || 'Admin';
 
@@ -181,6 +179,10 @@ export default function Dashboard({ stats, usersTrend, recentActivity, filters }
     }, [dateRange]);
 
     const statCards: { title: string; value: number; sub: string; icon: LucideIcon }[] = [
+        { title: 'Catalogue Downloads', value: stats?.downloads ?? 0, sub: 'Total downloads', icon: Download },
+        { title: 'New Enquiries', value: stats?.new_enquiries ?? 0, sub: 'Awaiting response', icon: Inbox },
+        { title: 'Brands', value: stats?.brands ?? 0, sub: 'Distributed brands', icon: Package },
+        { title: 'Catalogues', value: stats?.catalogues ?? 0, sub: 'Published PDFs', icon: FileText },
         { title: 'Total Users', value: stats?.total_users ?? 0, sub: 'Registered accounts', icon: Users },
         { title: 'Active Users', value: stats?.active_users ?? 0, sub: 'Currently active', icon: UserCheck },
     ];
@@ -237,7 +239,7 @@ export default function Dashboard({ stats, usersTrend, recentActivity, filters }
                 </div>
 
                 {/* Stat Cards */}
-                <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3">
                     {statCards.map((stat) => (
                         <Card key={stat.title}>
                             <CardContent className="p-3">
@@ -271,51 +273,6 @@ export default function Dashboard({ stats, usersTrend, recentActivity, filters }
                     </CardContent>
                 </Card>
 
-                {/* Recent Activity */}
-                <Card>
-                    <CardHeader className="p-4 pb-0">
-                        <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-3 overflow-auto">
-                        {(!recentActivity || recentActivity.length === 0) ? (
-                            <p className="text-center text-xs text-muted-foreground py-6">No activity yet</p>
-                        ) : (
-                            <>
-                                <div className="space-y-2 sm:hidden">
-                                    {recentActivity.map((log) => (
-                                        <div key={log.id} className="rounded-md border p-3 space-y-1">
-                                            <p className="text-xs font-medium">{log.user}</p>
-                                            <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                                                <span>{log.action} {log.model}</span>
-                                                <span>{formatDate(log.created_at)}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <Table className="hidden sm:table">
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="text-xs">User</TableHead>
-                                            <TableHead className="text-xs">Action</TableHead>
-                                            <TableHead className="text-xs">Model</TableHead>
-                                            <TableHead className="text-xs">Date</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {recentActivity.map((log) => (
-                                            <TableRow key={log.id}>
-                                                <TableCell className="text-xs font-medium">{log.user}</TableCell>
-                                                <TableCell className="text-xs capitalize">{log.action}</TableCell>
-                                                <TableCell className="text-xs text-muted-foreground">{log.model}</TableCell>
-                                                <TableCell className="text-xs text-muted-foreground">{formatDateTime(log.created_at)}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </>
-                        )}
-                    </CardContent>
-                </Card>
             </div>
         </AdminLayout>
     );

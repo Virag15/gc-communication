@@ -7,7 +7,7 @@ const Toaster = ({
   return (
     <Sonner
       theme="light"
-      position="top-right"
+      position="top-left"
       richColors
       className="toaster group"
       icons={{

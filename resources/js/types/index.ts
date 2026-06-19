@@ -77,6 +77,10 @@ export interface AuditLogEntry {
 export interface DashboardStats {
     total_users: number;
     active_users: number;
+    brands: number;
+    catalogues: number;
+    downloads: number;
+    new_enquiries: number;
 }
 
 /** A point on a time-series chart. */
@@ -134,6 +138,22 @@ export interface Catalogue {
     file_size: number | null;
     sort_order: number;
     is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+/** Status of a customer enquiry. */
+export type EnquiryStatus = 'new' | 'read' | 'archived';
+
+/** A contact / enquiry submission from the public site. */
+export interface Enquiry {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    company: string | null;
+    message: string;
+    status: EnquiryStatus;
     created_at: string;
     updated_at: string;
 }
