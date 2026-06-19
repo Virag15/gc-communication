@@ -292,9 +292,9 @@ export default function AdminLayout({ children, title, breadcrumbs }: AdminLayou
             </aside>
 
             {/* Main */}
-            <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex flex-1 flex-col overflow-hidden min-w-0 min-h-0">
                 {/* Header */}
-                <header className="flex h-12 items-center gap-3 border-b border-border bg-background px-4">
+                <header className="flex h-12 shrink-0 items-center gap-3 border-b border-border bg-background px-4">
                     <Button variant="ghost" size="icon" className="h-7 w-7 lg:hidden" onClick={() => setMobileOpen(true)}>
                         <Menu className="h-4 w-4" />
                     </Button>
@@ -372,7 +372,7 @@ export default function AdminLayout({ children, title, breadcrumbs }: AdminLayou
                 </header>
 
                 {/* Content */}
-                <main className="flex-1 overflow-y-auto bg-background p-4 sm:p-6">
+                <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-background p-4 sm:p-6">
                     {children}
                 </main>
             </div>
