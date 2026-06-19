@@ -14,11 +14,15 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Auth routes (rate limited, no auth middleware)
-Route::middleware('throttle:5,1')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('admin.login');
-    Route::post('/login', [AuthController::class, 'login']);
-});
+// Auth routes (no auth middleware).
+// Viewing the login form is generous so page loads never lock you out.
+// Login attempts get a coarse per-IP backstop; precise brute-force protection
+// (5 tries per email+IP) lives in AuthController::login().
+Route::get('/login', [AuthController::class, 'showLogin'])
+    ->middleware('throttle:60,1')
+    ->name('admin.login');
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:20,1');
 
 // Protected admin routes (auth + role check)
 Route::middleware(['auth', AdminAccess::class])->group(function () {

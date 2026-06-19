@@ -151,7 +151,7 @@ tsconfig.json                 # strict TypeScript configuration
 ## Branding
 
 - **Name** — `ADMIN_NAME` in `.env` (default `GC Communication`).
-- **Logo** — `ADMIN_LOGO` points at `/images/gc-logo.png`; replace the file to swap it.
+- **Logo** — `ADMIN_LOGO` points at `/images/gc-logo.svg` (vector); replace the file to swap it.
 - **Colours** — brand tokens in `resources/css/app.css`; shadcn theme (oklch) in
   `resources/css/admin.css`.
 - **Favicon** — `public/favicon.svg` (the GC monogram).

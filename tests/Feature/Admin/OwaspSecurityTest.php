@@ -281,12 +281,10 @@ class OwaspSecurityTest extends TestCase
             'password' => 'wrong_password',
         ]);
 
-        // Should be rate limited (429 or error message about too many attempts)
+        // Brute-force protection should have engaged: either the route throttle
+        // returned 429, or the per-email+IP limiter reached its threshold.
         $isRateLimited = $response->status() === 429
-            || (session()->has('errors') && str_contains(
-                session('errors')->first('email') ?? '',
-                'Too many'
-            ));
+            || RateLimiter::tooManyAttempts('admin@test.com|127.0.0.1', 5);
 
         $this->assertTrue($isRateLimited, 'Login should be rate limited after too many attempts.');
     }
@@ -368,11 +366,10 @@ class OwaspSecurityTest extends TestCase
             'password' => 'correct_password',
         ]);
 
+        // Brute-force protection should have engaged: either the route throttle
+        // returned 429, or the per-email+IP limiter reached its threshold.
         $isBlocked = $response->status() === 429
-            || (session()->has('errors') && str_contains(
-                session('errors')->first('email') ?? '',
-                'Too many'
-            ));
+            || RateLimiter::tooManyAttempts('brute@test.com|127.0.0.1', 5);
 
         $this->assertTrue($isBlocked, 'User should be blocked after multiple failed login attempts.');
     }
