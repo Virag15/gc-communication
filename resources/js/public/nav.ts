@@ -1,14 +1,12 @@
 /**
  * Public navigation behaviour:
- *  - transparent over the hero, solid (blurred) once the page is scrolled
+ *  - floating pill nav gains a subtle blurred backdrop once the page is scrolled
  *  - mobile overlay menu (open/close, Esc, scroll-lock)
- *
- * A nav marked data-solid="static" (content pages without a hero) stays solid.
  */
 function initNav(): void {
     const nav = document.querySelector<HTMLElement>('.site-nav');
 
-    if (nav && nav.dataset.solid !== 'static') {
+    if (nav) {
         const sync = () => nav.classList.toggle('is-solid', window.scrollY > 8);
         sync();
         window.addEventListener('scroll', sync, { passive: true });

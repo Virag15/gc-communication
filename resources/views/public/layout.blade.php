@@ -29,9 +29,9 @@
     {{-- GTM / Meta Pixel noscript fallbacks --}}
     <x-tracking-body :settings="$settings ?? []" />
 
-    <x-public.navbar :over-hero="$navOverHero ?? false" />
+    <x-public.navbar />
 
-    <main class="{{ ($navOverHero ?? false) ? '' : 'pt-[var(--nav-h)]' }}">
+    <main class="pt-[var(--nav-h)]">
         @yield('content')
     </main>
 

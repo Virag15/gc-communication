@@ -202,49 +202,84 @@ export interface Customer {
     updated_at: string;
 }
 
-/** A single line in a saved Bill of Materials. */
-export interface BomLineItem {
-    system: 'LSPS' | 'SSPS';
-    sr: number;
+/** A customer snapshot stored on an estimate. */
+export interface EstimateCustomerSnapshot {
     name: string;
-    code: string;
-    finish: string;
-    qty: number;
-    mrp: number;
-    amount: number;
-    custom?: boolean;
+    company?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    address?: string | null;
+    gstin?: string | null;
+    ref_by?: string | null;
 }
 
-/** A saved Bill of Materials (estimate). */
-export interface Bom {
-    id: number;
+/** A line item on an estimate / Bill of Materials. */
+export interface EstimateLineItem {
+    product_id?: number | null;
+    item_no: string;
     name: string;
-    customer: string | null;
-    material: 'W' | 'P';
-    width_ft: number;
-    height_ft: number;
-    lsps_fixed: number;
-    lsps_movable: number;
-    ssps_fixed: number;
-    ssps_movable: number;
-    line_items: BomLineItem[];
-    lsps_total: number;
-    ssps_total: number;
-    grand_total: number;
+    spec?: string | null;
+    qty: number;
+    unit_price: number;
+    mrp?: number | null;
+    image?: string | null;
+}
+
+/** A saved estimate (Bill of Materials). */
+export interface Estimate {
+    id: number;
+    estimate_no: string;
+    customer_id: number | null;
+    customer: EstimateCustomerSnapshot;
+    line_items: EstimateLineItem[];
+    special_discount: number;
+    delivery_fee: number;
+    express: boolean;
+    gst_pct: number;
+    show_prices: boolean;
+    show_scheme: boolean;
     template: string;
     accent: string;
-    notes: string | null;
+    item_total: number;
+    scheme_off: number;
+    gst_amt: number;
+    grand_total: number;
+    status: string;
     created_at: string;
     updated_at: string;
 }
 
-/** A lighter BOM row for the listing table. */
-export type BomListItem = Pick<Bom, 'id' | 'name' | 'customer' | 'material' | 'width_ft' | 'height_ft' | 'grand_total' | 'created_at' | 'updated_at'>;
+/** A lighter estimate row for the listing table. */
+export type EstimateListItem = Pick<Estimate, 'id' | 'estimate_no' | 'customer' | 'grand_total' | 'status' | 'created_at' | 'updated_at'>;
 
-/** Letterhead details merged into the BOM PDF. */
-export interface BomCompany {
-    name: string;
-    phone: string;
-    email: string;
-    address: string;
+/** Global estimate / PDF branding settings. */
+export interface EstimateSetting {
+    id: number;
+    company_name: string;
+    prepared_by: string | null;
+    doc_title: string;
+    note: string | null;
+    terms: string | null;
+    valid_days: number;
+    template: string;
+    accent: string;
+    paper: string;
+    font: string;
+    footer_color: string;
+    side_color: string;
+    wordmark_color: string;
+    logos_pos: string;
+    photos: boolean;
+    show_prices: boolean;
+    show_scheme: boolean;
+    use_brand_logos: boolean;
+    gst_pct: number;
+    watermark: string | null;
+    dealer_addr1: string | null;
+    dealer_addr2: string | null;
+    dealer_phone: string | null;
+    dealer_email: string | null;
+    dealer_website: string | null;
+    dealer_gstin: string | null;
+    logo: string | null;
 }

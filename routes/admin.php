@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
-use App\Http\Controllers\Admin\BomController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CatalogueController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EstimateController;
+use App\Http\Controllers\Admin\EstimateSettingController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SiteSettingController;
@@ -98,13 +99,15 @@ Route::middleware(['auth', AdminAccess::class])->group(function () {
         Route::get('/enquiries/{id}', [EnquiryController::class, 'show'])->where('id', '[0-9]+')->name('admin.enquiries.show');
         Route::delete('/enquiries/{id}', [EnquiryController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.enquiries.destroy');
 
-        // BOM creator (configure -> customise line items -> save -> download PDF).
-        Route::get('/bom', [BomController::class, 'index'])->name('admin.bom.index');
-        Route::get('/bom/create', [BomController::class, 'create'])->name('admin.bom.create');
-        Route::post('/bom', [BomController::class, 'store'])->name('admin.bom.store');
-        Route::get('/bom/{id}', [BomController::class, 'show'])->where('id', '[0-9]+')->name('admin.bom.show');
-        Route::get('/bom/{id}/edit', [BomController::class, 'edit'])->where('id', '[0-9]+')->name('admin.bom.edit');
-        Route::put('/bom/{id}', [BomController::class, 'update'])->where('id', '[0-9]+')->name('admin.bom.update');
-        Route::delete('/bom/{id}', [BomController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.bom.destroy');
+        // BOM / estimate creator (customer + products -> discounts/GST -> save -> branded PDF).
+        Route::get('/bom', [EstimateController::class, 'index'])->name('admin.bom.index');
+        Route::get('/bom/create', [EstimateController::class, 'create'])->name('admin.bom.create');
+        Route::post('/bom', [EstimateController::class, 'store'])->name('admin.bom.store');
+        Route::get('/bom/settings', [EstimateSettingController::class, 'edit'])->name('admin.bom.settings');
+        Route::post('/bom/settings', [EstimateSettingController::class, 'update'])->name('admin.bom.settings.update');
+        Route::get('/bom/{id}', [EstimateController::class, 'show'])->where('id', '[0-9]+')->name('admin.bom.show');
+        Route::get('/bom/{id}/edit', [EstimateController::class, 'edit'])->where('id', '[0-9]+')->name('admin.bom.edit');
+        Route::put('/bom/{id}', [EstimateController::class, 'update'])->where('id', '[0-9]+')->name('admin.bom.update');
+        Route::delete('/bom/{id}', [EstimateController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.bom.destroy');
     });
 });
