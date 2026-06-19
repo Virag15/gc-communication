@@ -27,10 +27,10 @@ class UpdateSiteSettingsRequest extends FormRequest
             'site_name' => ['nullable', 'string', 'max:120'],
             'default_meta_title' => ['nullable', 'string', 'max:70'],
             'default_meta_description' => ['nullable', 'string', 'max:200'],
-            'default_og_image' => ['nullable', 'string', 'max:500'],
+            'default_og_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
 
             // Organization / contact (also used for JSON-LD + footer)
-            'org_logo' => ['nullable', 'string', 'max:500'],
+            'org_logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:50'],
             'contact_address' => ['nullable', 'string', 'max:500'],

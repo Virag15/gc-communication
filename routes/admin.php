@@ -52,6 +52,6 @@ Route::middleware(['auth', AdminAccess::class])->group(function () {
 
         // Site settings — analytics IDs, verification codes, SEO defaults, consent.
         Route::get('/settings', [SiteSettingController::class, 'index'])->name('admin.settings.index');
-        Route::put('/settings', [SiteSettingController::class, 'update'])->name('admin.settings.update');
+        Route::post('/settings', [SiteSettingController::class, 'update'])->name('admin.settings.update');
     });
 });
