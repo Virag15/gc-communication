@@ -371,8 +371,9 @@ export default function AdminLayout({ children, title, breadcrumbs }: AdminLayou
                     )}
                 </header>
 
-                {/* Content */}
-                <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-background p-4 sm:p-6">
+                {/* Content (relative = positioning context so absolutely-positioned
+                    descendants stay contained and never extend the document height) */}
+                <main className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-background p-4 sm:p-6">
                     {children}
                 </main>
             </div>
