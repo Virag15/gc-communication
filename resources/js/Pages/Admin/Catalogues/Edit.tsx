@@ -81,7 +81,11 @@ export default function CatalogueEdit({ catalogue, brands }: CatalogueEditProps)
                                     {brands.map((brand) => (
                                         <SelectItem key={brand.id} value={String(brand.id)}>
                                             <span className="flex items-center gap-2">
-                                                {brand.logo ? <img src={brand.logo} alt="" className="h-4 w-6 shrink-0 object-contain" /> : null}
+                                                {brand.logo ? (
+                                                    <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-neutral-200 bg-white p-0.5">
+                                                        <img src={brand.logo} alt="" className="h-full w-full object-contain" />
+                                                    </span>
+                                                ) : null}
                                                 {brand.name}
                                             </span>
                                         </SelectItem>
