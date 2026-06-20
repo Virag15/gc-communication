@@ -13,7 +13,7 @@ import { type Brand, type Catalogue } from '@/types';
 
 interface CatalogueEditProps {
     catalogue: Catalogue;
-    brands: Pick<Brand, 'id' | 'name'>[];
+    brands: Pick<Brand, 'id' | 'name' | 'logo'>[];
 }
 
 const NO_BRAND = 'none';
@@ -79,7 +79,12 @@ export default function CatalogueEdit({ catalogue, brands }: CatalogueEditProps)
                                 <SelectContent>
                                     <SelectItem value={NO_BRAND}>No brand / General</SelectItem>
                                     {brands.map((brand) => (
-                                        <SelectItem key={brand.id} value={String(brand.id)}>{brand.name}</SelectItem>
+                                        <SelectItem key={brand.id} value={String(brand.id)}>
+                                            <span className="flex items-center gap-2">
+                                                {brand.logo ? <img src={brand.logo} alt="" className="h-4 w-6 shrink-0 object-contain" /> : null}
+                                                {brand.name}
+                                            </span>
+                                        </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>

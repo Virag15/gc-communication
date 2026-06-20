@@ -66,6 +66,7 @@ export interface SeoSetting {
     canonical_url?: string | null;
     structured_data?: string | null;
     noindex?: boolean;
+    robots?: string | null;
 }
 
 /** A row in the dashboard "recent activity" feed. */

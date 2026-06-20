@@ -95,6 +95,7 @@ class SeoController extends Controller
             'structured_data' => 'nullable|string|max:5000',
             'canonical_url' => 'nullable|url|max:500',
             'noindex' => 'boolean',
+            'robots' => 'nullable|string|max:40',
         ]);
 
         if (!empty($validated['structured_data'])) {
@@ -125,6 +126,7 @@ class SeoController extends Controller
             'pages.*.structured_data' => 'nullable|json|max:5000',
             'pages.*.og_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'pages.*.noindex' => 'nullable',
+            'pages.*.robots' => 'nullable|string|max:40',
         ]);
 
         $pages = $request->input('pages', []);
@@ -149,8 +151,12 @@ class SeoController extends Controller
             'og_type' => isset($data['og_type']) ? strip_tags($data['og_type']) : 'website',
             'canonical_url' => $data['canonical_url'] ?? null,
             'structured_data' => $data['structured_data'] ?? null,
-            'noindex' => filter_var($data['noindex'] ?? false, FILTER_VALIDATE_BOOLEAN),
         ];
+
+        // Robots: prefer the explicit directive; fall back to the legacy noindex flag.
+        $robots = $data['robots'] ?? (filter_var($data['noindex'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 'noindex, nofollow' : 'index, follow');
+        $payload['robots'] = $robots;
+        $payload['noindex'] = str_contains($robots, 'noindex');
 
         if (array_key_exists('meta_keywords', $data)) {
             $payload['meta_keywords'] = $data['meta_keywords']

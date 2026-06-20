@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
@@ -40,9 +39,11 @@ interface PageForm {
     og_type: string;
     canonical_url: string;
     structured_data: string;
-    noindex: boolean;
+    robots: string;
     og_image: File | null;
 }
+
+const ROBOTS_OPTIONS = ['index, follow', 'noindex, follow', 'index, nofollow', 'noindex, nofollow'];
 
 interface PagesForm {
     pages: Record<string, PageForm>;
@@ -59,7 +60,7 @@ function toForm(s: SeoSetting | undefined): PageForm {
         og_type: s?.og_type ?? 'website',
         canonical_url: s?.canonical_url ?? '',
         structured_data: s?.structured_data ?? '',
-        noindex: !!s?.noindex,
+        robots: s?.robots ?? (s?.noindex ? 'noindex, nofollow' : 'index, follow'),
         og_image: null,
     };
 }
@@ -171,7 +172,7 @@ export default function SeoIndex({ seoSettings, pages, sitemapInfo, appUrl }: Se
                             </button>
                         ))}
                     </div>
-                    <Button type="submit" disabled={processing} className="ml-auto rounded-full">
+                    <Button type="submit" disabled={processing} className="ml-auto">
                         {processing && <Loader2 className="h-4 w-4 animate-spin" />}
                         Save all
                     </Button>
@@ -255,12 +256,15 @@ export default function SeoIndex({ seoSettings, pages, sitemapInfo, appUrl }: Se
                                 <Textarea id="structured_data" rows={3} className="font-mono text-xs" value={f.structured_data} onChange={(e) => update('structured_data', e.target.value)} placeholder='{"@context":"https://schema.org", ...}' />
                                 {errFor('structured_data') && <p className="text-xs text-destructive">{errFor('structured_data')}</p>}
                             </div>
-                            <div className="flex items-center justify-between gap-4">
-                                <div>
-                                    <Label htmlFor="noindex">Hide from search engines</Label>
-                                    <p className="text-xs text-muted-foreground">Adds noindex, nofollow to this page.</p>
-                                </div>
-                                <Switch id="noindex" checked={f.noindex} onCheckedChange={(v) => update('noindex', v)} />
+                            <div className="space-y-1.5">
+                                <Label htmlFor="robots">Robots (search engine indexing)</Label>
+                                <Select value={f.robots} onValueChange={(v) => update('robots', v)}>
+                                    <SelectTrigger id="robots"><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        {ROBOTS_OPTIONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-xs text-muted-foreground">"index, follow" lets search engines list this page; indexable pages also get max-image-preview/snippet hints.</p>
                             </div>
                             <p className="text-xs text-muted-foreground">Favicon is set globally in Site Settings.</p>
                         </div>

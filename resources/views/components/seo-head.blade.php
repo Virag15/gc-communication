@@ -9,6 +9,10 @@
     $ogTitle = ($seo?->og_title) ?: $metaTitle;
     $ogDescription = ($seo?->og_description) ?: $metaDescription;
     $ogType = ($seo?->og_type) ?: 'website';
+    $robots = ($seo?->robots) ?: ($noindex ? 'noindex, nofollow' : 'index, follow');
+    if (!str_contains($robots, 'noindex')) {
+        $robots .= ', max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+    }
 
     $toUrl = fn ($path) => $path ? (\Illuminate\Support\Str::startsWith($path, ['http://', 'https://']) ? $path : url($path)) : null;
     $ogImageUrl = $toUrl(($seo?->og_image) ?: (data_get($settings, 'default_og_image') ?: data_get($settings, 'org_logo')))
@@ -35,7 +39,7 @@
 @if($metaDescription)<meta name="description" content="{{ $metaDescription }}">@endif
 @if($keywords)<meta name="keywords" content="{{ $keywords }}">@endif
 <link rel="canonical" href="{{ $canonical }}">
-<meta name="robots" content="{{ $noindex ? 'noindex, nofollow' : 'index, follow' }}">
+<meta name="robots" content="{{ $robots }}">
 
 {{-- Open Graph --}}
 <meta property="og:type" content="{{ $ogType }}">

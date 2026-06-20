@@ -27,7 +27,7 @@ class CatalogueController extends Controller
     public function create()
     {
         return Inertia::render('Admin/Catalogues/Create', [
-            'brands' => Brand::ordered()->get(['id', 'name']),
+            'brands' => Brand::ordered()->get(['id', 'name', 'logo']),
         ]);
     }
 
@@ -37,7 +37,7 @@ class CatalogueController extends Controller
 
         return Inertia::render('Admin/Catalogues/Edit', [
             'catalogue' => $catalogue,
-            'brands' => Brand::ordered()->get(['id', 'name']),
+            'brands' => Brand::ordered()->get(['id', 'name', 'logo']),
         ]);
     }
 

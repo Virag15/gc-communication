@@ -21,6 +21,7 @@ class SeoSetting extends Model
         'structured_data',
         'canonical_url',
         'noindex',
+        'robots',
     ];
 
     protected function casts(): array
