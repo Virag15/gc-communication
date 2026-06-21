@@ -72,13 +72,17 @@ const NOISE = /^(go to contents|mrp|hsn|note|notes|conforms|range|features?|brea
 
 function isPrice(t) { return PRICE_RE.test(t.replace(/[, ]/g, '')) && Number(t.replace(/[^\d]/g, '')) >= 20; }
 
-// A catalogue code: has letters AND digits, length >= 5, not a sentence.
+// A catalogue code: has letters AND digits, length >= 5, not a sentence and not a
+// bare rating like "1000A" / "36kA" (those are specs, and the real code sits beside
+// them — often containing parentheses such as WX310N3P1MDOA(S)).
+const RATING_ONLY = /^\d+(\.\d+)?\s?(a|ka|v|kv|w|kw|hp|mm|va|kva|nm)$/i;
 function looksLikeCode(t) {
     const s = t.replace(/[•*+]+$/, '').replace(/[.\-]+$/, '');
-    if (s.length < 5 || s.length > 28) return false;
+    if (s.length < 5 || s.length > 30) return false;
     if (/\s/.test(s)) return false;
     if (!/[A-Za-z]/.test(s) || !/\d/.test(s)) return false;
-    if (!/^[#]?[A-Za-z0-9.\-/]+$/.test(s)) return false;
+    if (RATING_ONLY.test(s)) return false;
+    if (!/^[#]?[A-Za-z0-9.\-/()]+$/.test(s)) return false;
     return true;
 }
 
