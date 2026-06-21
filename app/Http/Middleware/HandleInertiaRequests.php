@@ -31,6 +31,10 @@ class HandleInertiaRequests extends Middleware
                 'logo' => config('admin.logo'),
                 'timezone' => config('admin.timezone'),
             ],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+            ],
         ];
     }
 }

@@ -9,19 +9,26 @@
  * reads the rendered pixels, so the data comes back intact.
  *
  * Output is a CSV with headers the in-app importer already auto-maps:
- *   Item No, Name, Spec, MRP, Category, Page, Raw Line
+ *   Item No, Name, Spec, MRP, Category, Image, Page, Raw Line
  * "Raw Line" is kept so you can eyeball/fix anything before importing.
  *
- *   node convert.mjs "<file.pdf>" [--pages 8,25,57] [--dpi 300] > out.csv
+ * Product photos are also extracted (Luker has one per product; C&S/BCH one
+ * illustration per family/page). They are written straight into Laravel's
+ * storage/app/public/products/ and the CSV's Image column carries the /storage
+ * URL, so the existing importer picks them up with no extra upload step.
+ *
+ *   node convert.mjs "<file.pdf>" [--pages 8,25,57] [--dpi 300] [--no-images] > out.csv
  */
 import { execFileSync } from 'node:child_process';
-import { statSync, existsSync } from 'node:fs';
+import { statSync, existsSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, basename } from 'node:path';
 
 const DIR = dirname(fileURLToPath(import.meta.url));
 const BIN = join(DIR, 'ocrbin');
 const SRC = join(DIR, 'ocr.swift');
+const IMG_BIN = join(DIR, 'imgbin');
+const IMG_SRC = join(DIR, 'images.swift');
 
 // ---- args ---------------------------------------------------------------
 const argv = process.argv.slice(2);
@@ -29,20 +36,29 @@ const pdf = argv.find((a) => !a.startsWith('--'));
 const getOpt = (k) => { const a = argv.find((x) => x.startsWith(`--${k}=`)); if (a) return a.split('=')[1]; const i = argv.indexOf(`--${k}`); return i >= 0 ? argv[i + 1] : undefined; };
 const dpi = getOpt('dpi') || '300';
 const pagesOpt = getOpt('pages');
-if (!pdf) { console.error('usage: node convert.mjs "<file.pdf>" [--pages 1,2,3] [--dpi 300] > out.csv'); process.exit(1); }
+const withImages = !argv.includes('--no-images');
+// Where to drop extracted photos + the URL prefix the app serves them from.
+const imagesDir = getOpt('images-dir') || join(DIR, '..', '..', 'storage', 'app', 'public', 'products');
+const imageUrlBase = getOpt('image-url') || '/storage/products';
+const scratchRoot = join(DIR, '.imgscratch');
+const brandSlug = (getOpt('brand') || basename(pdf, '.pdf')).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24);
+if (!pdf) { console.error('usage: node convert.mjs "<file.pdf>" [--pages 1,2,3] [--dpi 300] [--no-images] > out.csv'); process.exit(1); }
 if (!existsSync(pdf)) { console.error('no such file: ' + pdf); process.exit(1); }
 
-// ---- ensure the OCR binary is built ------------------------------------
-function ensureBin() {
-    const stale = !existsSync(BIN) || statSync(BIN).mtimeMs < statSync(SRC).mtimeMs;
-    if (stale) {
-        console.error('compiling ocr.swift ...');
-        execFileSync('swiftc', ['-O', SRC, '-o', BIN], { stdio: ['ignore', 'ignore', 'inherit'] });
-    }
+// ---- ensure the helper binaries are built ------------------------------
+function build(src, bin) {
+    const stale = !existsSync(bin) || statSync(bin).mtimeMs < statSync(src).mtimeMs;
+    if (stale) { console.error(`compiling ${basename(src)} ...`); execFileSync('swiftc', ['-O', src, '-o', bin], { stdio: ['ignore', 'ignore', 'inherit'] }); }
 }
+function ensureBin() { build(SRC, BIN); if (withImages) build(IMG_SRC, IMG_BIN); }
 
 function ocrPage(page) {
     const json = execFileSync(BIN, [pdf, String(page), dpi], { maxBuffer: 64 * 1024 * 1024 }).toString();
+    return JSON.parse(json);
+}
+
+function imagesPage(page, outDir) {
+    const json = execFileSync(IMG_BIN, [pdf, String(page), '200', outDir], { maxBuffer: 32 * 1024 * 1024 }).toString();
     return JSON.parse(json);
 }
 
@@ -147,20 +163,65 @@ function reconstruct(data) {
                 spec,
                 mrp: p ? p.t.replace(/[^\d]/g, '') : '',
                 category: section || '',
+                image: '',
                 page: data.page,
                 raw: text.slice(0, 200),
+                _cx: (code.x + code.w / 2) / data.w,   // normalised code centre (for image pairing)
+                _cy: (code.y + code.h / 2) / data.h,
             });
         }
     }
     return { section, rows };
 }
 
+// ---- image pairing ------------------------------------------------------
+// Pair extracted page images to product rows and copy the chosen ones into the
+// app's storage dir. Luker-style pages (many small photos) pair per product by
+// 2D nearest; C&S/BCH pages (a few images) treat the largest as the family photo
+// and assign it to every row on the page.
+function pairImages(rows, img, copied) {
+    if (!rows.length || !img || !img.images?.length) return;
+    const W = img.W, H = img.H;
+    // Normalise + filter out divider bars (extreme aspect) and tiny icons.
+    const cand = img.images.map((im) => ({
+        ...im, nx: (im.x + im.w / 2) / W, ny: (im.y + im.h / 2) / H,
+        fw: im.w / W, fh: im.h / H, ar: im.w / Math.max(1, im.h), area: (im.w / W) * (im.h / H),
+    })).filter((im) => im.file && im.fw > 0.02 && im.fh > 0.02 && im.ar < 6 && im.ar > 1 / 6);
+    if (!cand.length) return;
+
+    const assign = (row, im) => {
+        let url = copied.get(im.file);
+        if (!url) {
+            const name = `${brandSlug}-p${row.page}-${basename(im.file, '.png')}.png`;
+            try { copyFileSync(im.file, join(imagesDir, name)); url = `${imageUrlBase}/${name}`; copied.set(im.file, url); }
+            catch { return; }
+        }
+        row.image = url;
+    };
+
+    if (cand.length >= 6) {
+        // per-product: each row gets its nearest photo (if reasonably close)
+        for (const row of rows) {
+            let best = null, bd = 0.16;
+            for (const im of cand) {
+                const d = Math.hypot(im.nx - row._cx, im.ny - row._cy);
+                if (d < bd) { bd = d; best = im; }
+            }
+            if (best) assign(row, best);
+        }
+    } else {
+        // per-family: biggest image is the section illustration for the whole page
+        const fam = cand.sort((a, b) => b.area - a.area)[0];
+        for (const row of rows) assign(row, fam);
+    }
+}
+
 // ---- csv ----------------------------------------------------------------
 const q = (s) => `"${String(s ?? '').replace(/"/g, '""')}"`;
 function emitCsv(rows) {
-    const head = ['Item No', 'Name', 'Spec', 'MRP', 'Category', 'Page', 'Raw Line'];
+    const head = ['Item No', 'Name', 'Spec', 'MRP', 'Category', 'Image', 'Page', 'Raw Line'];
     process.stdout.write(head.map(q).join(',') + '\n');
-    for (const r of rows) process.stdout.write([r.item_no, r.name, r.spec, r.mrp, r.category, r.page, r.raw].map(q).join(',') + '\n');
+    for (const r of rows) process.stdout.write([r.item_no, r.name, r.spec, r.mrp, r.category, r.image, r.page, r.raw].map(q).join(',') + '\n');
 }
 
 // ---- run ----------------------------------------------------------------
@@ -169,17 +230,28 @@ let pages;
 if (pagesOpt) pages = pagesOpt.split(',').map((s) => Number(s.trim())).filter(Boolean);
 else { console.error('counting pages ...'); const n = pageCount(); pages = Array.from({ length: n }, (_, i) => i + 1); }
 
-console.error(`OCR ${basename(pdf)} : ${pages.length} page(s) @ ${dpi}dpi`);
+console.error(`OCR ${basename(pdf)} : ${pages.length} page(s) @ ${dpi}dpi${withImages ? ' + images' : ''}`);
+if (withImages) mkdirSync(imagesDir, { recursive: true });
+const copied = new Map();      // source temp png -> final /storage url (de-dup copies)
 const all = [];
-let done = 0;
+let done = 0, withImg = 0;
 for (const pg of pages) {
     try {
         const data = ocrPage(pg);
         const { rows } = reconstruct(data);
+        if (withImages && rows.length) {
+            const scratch = join(scratchRoot, `p${pg}`);
+            mkdirSync(scratch, { recursive: true });
+            try { pairImages(rows, imagesPage(pg, scratch), copied); }
+            catch (e) { console.error(`  page ${pg} images: ${String(e.message || e).slice(0, 60)}`); }
+            rmSync(scratch, { recursive: true, force: true });
+        }
+        withImg += rows.filter((r) => r.image).length;
         all.push(...rows);
     } catch (e) { console.error(`  page ${pg}: ${String(e.message || e).slice(0, 80)}`); }
-    if (++done % 5 === 0 || done === pages.length) console.error(`  ${done}/${pages.length} pages, ${all.length} rows`);
+    if (++done % 5 === 0 || done === pages.length) console.error(`  ${done}/${pages.length} pages, ${all.length} rows, ${withImg} with image`);
 }
+rmSync(scratchRoot, { recursive: true, force: true });
 // Drop exact (item_no,mrp,page) repeats, then guarantee item_no is globally unique
 // so the importer's upsert (brand_id,item_no) never silently overwrites a real product.
 const seen = new Set();

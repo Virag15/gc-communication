@@ -120,6 +120,7 @@ class ProductController extends Controller
             'rows.*.price' => 'nullable|numeric|min:0',
             'rows.*.mrp' => 'nullable|numeric|min:0',
             'rows.*.category' => 'nullable|string|max:80',
+            'rows.*.image' => 'nullable|string|max:255',
         ]);
 
         $brandId = $validated['brand_id'] ?? null;
@@ -129,16 +130,21 @@ class ProductController extends Controller
         DB::transaction(function () use ($validated, $brandId, &$created, &$updated) {
             foreach ($validated['rows'] as $row) {
                 $price = $row['price'] ?? $row['mrp'] ?? 0;
+                $attrs = [
+                    'name' => $row['name'],
+                    'spec' => $row['spec'] ?? null,
+                    'price' => $price,
+                    'mrp' => $row['mrp'] ?? null,
+                    'category' => $row['category'] ?? null,
+                    'is_active' => true,
+                ];
+                // Only set image when provided, so re-imports never wipe an existing photo.
+                if (! empty($row['image'])) {
+                    $attrs['image'] = $row['image'];
+                }
                 $product = Product::updateOrCreate(
                     ['brand_id' => $brandId, 'item_no' => $row['item_no']],
-                    [
-                        'name' => $row['name'],
-                        'spec' => $row['spec'] ?? null,
-                        'price' => $price,
-                        'mrp' => $row['mrp'] ?? null,
-                        'category' => $row['category'] ?? null,
-                        'is_active' => true,
-                    ],
+                    $attrs,
                 );
                 $product->wasRecentlyCreated ? $created++ : $updated++;
             }

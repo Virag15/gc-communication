@@ -21,6 +21,7 @@ const FIELDS: { key: string; label: string; required?: boolean }[] = [
     { key: 'price', label: 'Price (selling)' },
     { key: 'mrp', label: 'MRP' },
     { key: 'category', label: 'Category / Series' },
+    { key: 'image', label: 'Image URL' },
 ];
 
 const norm = (h: string) => h.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -40,6 +41,7 @@ function guessMapping(headers: string[]): Record<string, number> {
         else if (m.price === undefined && /(price|rate|dp|net|dealer)/.test(n)) m.price = i;
         if (m.spec === undefined && /(spec|rating|rated|technical|amp|pole)/.test(n)) m.spec = i;
         if (m.category === undefined && /(category|group|type|series|range)/.test(n)) m.category = i;
+        if (m.image === undefined && /(image|photo|picture|img|thumbnail)/.test(n)) m.image = i;
     });
     return m;
 }
@@ -104,6 +106,7 @@ export default function ProductImport({ brands }: { brands: Brand[] }) {
                 price: mapping.price !== undefined ? toNum(r[mapping.price]) : undefined,
                 mrp: mapping.mrp !== undefined ? toNum(r[mapping.mrp]) : undefined,
                 category: mapping.category !== undefined ? String(r[mapping.category] ?? '').trim() : undefined,
+                image: mapping.image !== undefined ? String(r[mapping.image] ?? '').trim() : undefined,
             }))
             .filter((x) => x.item_no && x.name);
     }, [rows, mapping]);
@@ -114,7 +117,7 @@ export default function ProductImport({ brands }: { brands: Brand[] }) {
         if (!ready) return toast.error('Map at least Item no and Name.');
         setImporting(true);
         router.post('/admin/products/import', { brand_id: brandId === NONE ? null : Number(brandId), rows: built }, {
-            onSuccess: () => toast.success('Products imported.'),
+            // Success toast comes from the server flash ("X added, Y updated").
             onError: () => toast.error('Import failed. Check the file and mapping.'),
             onFinish: () => setImporting(false),
         });
@@ -195,6 +198,7 @@ export default function ProductImport({ brands }: { brands: Brand[] }) {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
+                                        <TableHead className="w-12">Img</TableHead>
                                         <TableHead>Item no</TableHead>
                                         <TableHead>Name</TableHead>
                                         <TableHead>Spec</TableHead>
@@ -206,6 +210,13 @@ export default function ProductImport({ brands }: { brands: Brand[] }) {
                                 <TableBody>
                                     {built.slice(0, 10).map((r, i) => (
                                         <TableRow key={i}>
+                                            <TableCell>
+                                                {r.image ? (
+                                                    <img src={r.image} alt="" className="h-8 w-8 rounded border border-border object-contain" />
+                                                ) : (
+                                                    <div className="h-8 w-8 rounded border border-dashed border-border" />
+                                                )}
+                                            </TableCell>
                                             <TableCell className="font-medium">{r.item_no}</TableCell>
                                             <TableCell>{r.name}</TableCell>
                                             <TableCell className="text-muted-foreground">{r.spec || '-'}</TableCell>

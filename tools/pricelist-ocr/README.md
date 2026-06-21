@@ -60,10 +60,35 @@ The Swift OCR binary (`ocrbin`) is compiled automatically on first run.
 - **MRP** — the price paired to each code.
 - **Spec** — the rating/description to the left of the code (e.g. `125`, `36kA`).
 - **Category** — the product family heading on that page (e.g. `MCCB`, `Contactor`).
+- **Image** — the product photo (see below).
 - **Page / Raw Line** — provenance, for your review.
 
 Every `Item No` is made globally unique so the importer's upsert never silently
 overwrites two different products.
+
+## Product images
+
+The tool also pulls the photos embedded in the PDF and writes them straight into
+`storage/app/public/products/`, putting the `/storage/...` URL in the CSV's **Image**
+column — so the importer attaches them with no extra upload step.
+
+- **C&S / BCH** (switchgear): each page carries one family illustration; it's assigned
+  to every product on that page. Reliable (variants of a device look the same).
+- **Luker** (LED): one photo per product. The grid layout is busy, so pairing is
+  best-effort — some products get the right photo, some none. Review these.
+
+Disable with `--no-images`. Override the destination with `--images-dir <path>` and the
+served URL prefix with `--image-url </storage/...>`. On re-import, a blank Image cell
+never wipes a product's existing photo.
+
+## Updating when a new price list arrives
+
+The importer upserts by **(brand, Item No)**, so for a new list with revised rates and
+some new products: drop the new PDF in `price-list/`, re-run the converter, and upload
+the CSV for that brand. Existing codes get their **rates updated**, new codes are
+**added**, nothing duplicates. After the import you'll see "**X added, Y updated**". The
+only requirement is that the code is read the same way both times — which is why you
+review the CSV once; after that the codes are clean and future updates match cleanly.
 
 ## Known limits (why you should review the CSV)
 
