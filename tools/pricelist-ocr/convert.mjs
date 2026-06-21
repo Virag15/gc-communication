@@ -162,11 +162,11 @@ function reconstruct(data) {
             // Resolve the "-*" rating placeholder with the row's actual rating (C&S ordering rule).
             if (/-\*$/.test(item) && rating) item = item.replace(/-\*$/, '-' + rating);
             rows.push({
-                item_no: item,
-                name: [section, spec].filter(Boolean).join(' — ').slice(0, 120) || item,
-                spec,
+                item_no: item.slice(0, 190),
+                name: ([section, spec].filter(Boolean).join(' — ').slice(0, 120) || item).slice(0, 190),
+                spec: spec.slice(0, 200),
                 mrp: p ? p.t.replace(/[^\d]/g, '') : '',
-                category: section || '',
+                category: (section || '').slice(0, 100),
                 image: '',
                 page: data.page,
                 raw: text.slice(0, 200),

@@ -111,47 +111,70 @@ class ProductController extends Controller
     /** Bulk upsert mapped rows by (brand_id, item_no). */
     public function import(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'brand_id' => 'nullable|integer|exists:brands,id',
-            'rows' => 'required|array|min:1|max:10000',
-            'rows.*.item_no' => 'required|string|max:60',
-            'rows.*.name' => 'required|string|max:200',
-            'rows.*.spec' => 'nullable|string|max:200',
-            'rows.*.price' => 'nullable|numeric|min:0',
-            'rows.*.mrp' => 'nullable|numeric|min:0',
-            'rows.*.category' => 'nullable|string|max:80',
-            'rows.*.image' => 'nullable|string|max:255',
+            'rows' => 'required|array|min:1|max:20000',
         ]);
 
-        $brandId = $validated['brand_id'] ?? null;
+        $brandId = $request->input('brand_id') ?: null;
+        [$created, $updated, $skipped] = $this->upsertRows($request->input('rows', []), $brandId);
+
+        $msg = "Import complete: {$created} added, {$updated} updated";
+        if ($skipped) {
+            $msg .= ", {$skipped} skipped";
+        }
+
+        return redirect()->route('admin.products.index')->with('success', $msg.'.');
+    }
+
+    /**
+     * Upsert product rows resiliently: trim/clip to column limits and skip rows
+     * missing a code or name, so one oversized/blank row never fails the batch.
+     *
+     * @return array{0:int,1:int,2:int} [created, updated, skipped]
+     */
+    public function upsertRows(array $rows, ?int $brandId): array
+    {
         $created = 0;
         $updated = 0;
+        $skipped = 0;
+        $clip = fn ($v, $n) => $v === null || $v === '' ? null : mb_substr(trim((string) $v), 0, $n);
+        $num = fn ($v) => is_numeric($v) ? (float) $v : null;
 
-        DB::transaction(function () use ($validated, $brandId, &$created, &$updated) {
-            foreach ($validated['rows'] as $row) {
-                $price = $row['price'] ?? $row['mrp'] ?? 0;
+        DB::transaction(function () use ($rows, $brandId, $clip, $num, &$created, &$updated, &$skipped) {
+            foreach ($rows as $row) {
+                if (! is_array($row)) {
+                    $skipped++;
+                    continue;
+                }
+                $itemNo = $clip($row['item_no'] ?? null, 190);
+                $name = $clip($row['name'] ?? null, 250);
+                if (! $itemNo || ! $name) {
+                    $skipped++;
+                    continue;
+                }
+                $mrp = $num($row['mrp'] ?? null);
                 $attrs = [
-                    'name' => $row['name'],
-                    'spec' => $row['spec'] ?? null,
-                    'price' => $price,
-                    'mrp' => $row['mrp'] ?? null,
-                    'category' => $row['category'] ?? null,
+                    'name' => $name,
+                    'spec' => $clip($row['spec'] ?? null, 250),
+                    'price' => $num($row['price'] ?? null) ?? $mrp ?? 0,
+                    'mrp' => $mrp,
+                    'category' => $clip($row['category'] ?? null, 120),
                     'is_active' => true,
                 ];
                 // Only set image when provided, so re-imports never wipe an existing photo.
                 if (! empty($row['image'])) {
-                    $attrs['image'] = $row['image'];
+                    $attrs['image'] = $clip($row['image'], 250);
                 }
                 $product = Product::updateOrCreate(
-                    ['brand_id' => $brandId, 'item_no' => $row['item_no']],
+                    ['brand_id' => $brandId, 'item_no' => $itemNo],
                     $attrs,
                 );
                 $product->wasRecentlyCreated ? $created++ : $updated++;
             }
         });
 
-        return redirect()->route('admin.products.index')
-            ->with('success', "Import complete: {$created} added, {$updated} updated.");
+        return [$created, $updated, $skipped];
     }
 
     private function validateProduct(Request $request): array

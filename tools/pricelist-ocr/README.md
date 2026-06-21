@@ -28,7 +28,14 @@ intact, including C&S's missing digits.
 
 No Homebrew, no Python, no API keys, nothing leaves your machine.
 
-## Usage
+## Easiest: run it from the admin panel
+
+**Admin → Products → Price lists** lists every PDF in the `price-list/` folder with a
+**Convert** button (live progress) and, once converted, a brand picker + **Import to
+catalogue** button. No terminal needed. (It shells out to the converter below, so it
+only works when the app runs locally on the Mac.)
+
+## Or from the terminal
 
 ```bash
 cd tools/pricelist-ocr

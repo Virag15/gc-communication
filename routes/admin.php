@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CatalogueController;
 use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\PriceListController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SiteSettingController;
@@ -85,6 +86,12 @@ Route::middleware(['auth', AdminAccess::class])->group(function () {
         Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->where('id', '[0-9]+')->name('admin.products.edit');
         Route::post('/products/{id}', [ProductController::class, 'update'])->where('id', '[0-9]+')->name('admin.products.update');
         Route::delete('/products/{id}', [ProductController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.products.destroy');
+
+        // Price lists: convert manufacturer PDFs (local OCR) and import the CSV from disk.
+        Route::get('/price-lists', [PriceListController::class, 'index'])->name('admin.price-lists.index');
+        Route::post('/price-lists/convert', [PriceListController::class, 'convert'])->name('admin.price-lists.convert');
+        Route::get('/price-lists/status', [PriceListController::class, 'status'])->name('admin.price-lists.status');
+        Route::post('/price-lists/import', [PriceListController::class, 'import'])->name('admin.price-lists.import');
 
         // Blog posts (rich text + per-post SEO; update via POST for image uploads).
         Route::get('/blog', [PostController::class, 'index'])->name('admin.blog.index');

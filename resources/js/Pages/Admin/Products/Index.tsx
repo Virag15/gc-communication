@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, Search, X, Image as ImageIcon, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, X, Image as ImageIcon, Upload, FileScan } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 import { type Brand, type Product } from '@/types';
 
@@ -125,9 +125,15 @@ export default function ProductsIndex({ products }: ProductsIndexProps) {
             )}
             <div className="flex gap-2 sm:ml-auto">
                 <Button asChild variant="outline" className="w-full sm:w-auto">
+                    <Link href="/admin/price-lists">
+                        <FileScan className="h-4 w-4 mr-2" />
+                        Price lists
+                    </Link>
+                </Button>
+                <Button asChild variant="outline" className="w-full sm:w-auto">
                     <Link href="/admin/products/import">
                         <Upload className="h-4 w-4 mr-2" />
-                        Import
+                        Import CSV
                     </Link>
                 </Button>
                 <Button asChild className="w-full sm:w-auto">

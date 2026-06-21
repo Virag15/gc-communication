@@ -12,6 +12,7 @@ import {
     Package,
     Boxes,
     FileText,
+    FileScan,
     Inbox,
     Newspaper,
     type LucideIcon,
@@ -69,6 +70,7 @@ const navGroups: NavGroup[] = [
         items: [
             { name: 'Brands', href: '/admin/brands', icon: Package },
             { name: 'Products', href: '/admin/products', icon: Boxes },
+            { name: 'Price lists', href: '/admin/price-lists', icon: FileScan },
             { name: 'Catalogues', href: '/admin/catalogues', icon: FileText },
             { name: 'Blog', href: '/admin/blog', icon: Newspaper },
         ],
