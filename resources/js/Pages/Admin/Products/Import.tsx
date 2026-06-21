@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { toast } from 'sonner';
 import { ArrowLeft, Loader2, Upload, FileSpreadsheet } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { parsePdfTable } from '@/lib/pdfTable';
 
 interface Brand { id: number; name: string; }
 const NONE = '__none__';
@@ -52,26 +53,36 @@ export default function ProductImport({ brands }: { brands: Brand[] }) {
     const [mapping, setMapping] = useState<Record<string, number>>({});
     const [importing, setImporting] = useState(false);
 
-    const handleFile = (file: File) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const data = new Uint8Array(e.target?.result as ArrayBuffer);
+    const applyParsed = (hdr: string[], body: string[][]) => {
+        setHeaders(hdr);
+        setRows(body);
+        setMapping(guessMapping(hdr));
+    };
+
+    const handleFile = async (file: File) => {
+        setFileName(file.name);
+        try {
+            if (/\.pdf$/i.test(file.name)) {
+                const { headers: hdr, rows: body } = await parsePdfTable(file);
+                if (!hdr.length || !body.length) {
+                    toast.error('No table found in that PDF. If it is a scanned image, export it to Excel/CSV instead.');
+                    return;
+                }
+                applyParsed(hdr, body);
+                toast.success(`Read ${body.length} rows from the PDF. Check the column mapping below.`);
+            } else {
+                const data = new Uint8Array(await file.arrayBuffer());
                 const wb = XLSX.read(data, { type: 'array' });
                 const ws = wb.Sheets[wb.SheetNames[0]];
                 const aoa = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, blankrows: false, defval: '' });
                 if (!aoa.length) { toast.error('That file looks empty.'); return; }
                 const hdr = (aoa[0] as unknown[]).map((c) => String(c ?? '').trim());
                 const body = aoa.slice(1).map((r) => (r as unknown[]).map((c) => String(c ?? '')));
-                setHeaders(hdr);
-                setRows(body);
-                setMapping(guessMapping(hdr));
-                setFileName(file.name);
-            } catch {
-                toast.error('Could not read that file. Use .xlsx or .csv.');
+                applyParsed(hdr, body);
             }
-        };
-        reader.readAsArrayBuffer(file);
+        } catch {
+            toast.error('Could not read that file. Use .xlsx, .csv or a text-based .pdf.');
+        }
     };
 
     const setField = (key: string, val: string) => {
@@ -125,7 +136,7 @@ export default function ProductImport({ brands }: { brands: Brand[] }) {
                 <Card>
                     <CardHeader className="pb-3">
                         <CardTitle className="text-base">1. Brand &amp; file</CardTitle>
-                        <CardDescription>Upload the brand's price list (.xlsx or .csv). The first row should be column headers.</CardDescription>
+                        <CardDescription>Upload the brand's price list (.xlsx, .csv, or a text-based .pdf). The first row should be column headers.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid gap-4 sm:grid-cols-2">
@@ -142,7 +153,7 @@ export default function ProductImport({ brands }: { brands: Brand[] }) {
                             <div className="space-y-1.5">
                                 <Label>Price list file</Label>
                                 <div className="flex items-center gap-2">
-                                    <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="sr-only" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+                                    <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv,.pdf" className="sr-only" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
                                     <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}><Upload className="h-4 w-4" /> Choose file</Button>
                                     {fileName && <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><FileSpreadsheet className="h-4 w-4" /> {fileName}</span>}
                                 </div>
