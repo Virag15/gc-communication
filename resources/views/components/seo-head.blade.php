@@ -70,7 +70,7 @@
 @if($keywords)<meta name="keywords" content="{{ $keywords }}">@endif
 <link rel="canonical" href="{{ $canonical }}">
 <meta name="robots" content="{{ $robots }}">
-<meta name="theme-color" content="#3f6ad6">
+<meta name="theme-color" content="#2f86e8">
 
 {{-- Open Graph --}}
 <meta property="og:type" content="{{ $ogType }}">
