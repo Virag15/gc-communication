@@ -9,7 +9,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { toast } from 'sonner';
 import { ArrowLeft, Loader2, Upload, FileSpreadsheet } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { parsePdfTable } from '@/lib/pdfTable';
 
 interface Brand { id: number; name: string; }
 const NONE = '__none__';
@@ -62,28 +61,22 @@ export default function ProductImport({ brands }: { brands: Brand[] }) {
     };
 
     const handleFile = async (file: File) => {
+        if (/\.pdf$/i.test(file.name)) {
+            toast.error('Brand PDFs can’t be read directly — convert the PDF to a CSV first with the price-list converter (tools/pricelist-ocr), then upload that CSV here.');
+            return;
+        }
         setFileName(file.name);
         try {
-            if (/\.pdf$/i.test(file.name)) {
-                const { headers: hdr, rows: body } = await parsePdfTable(file);
-                if (!hdr.length || !body.length) {
-                    toast.error('No table found in that PDF. If it is a scanned image, export it to Excel/CSV instead.');
-                    return;
-                }
-                applyParsed(hdr, body);
-                toast.success(`Read ${body.length} rows from the PDF. Check the column mapping below.`);
-            } else {
-                const data = new Uint8Array(await file.arrayBuffer());
-                const wb = XLSX.read(data, { type: 'array' });
-                const ws = wb.Sheets[wb.SheetNames[0]];
-                const aoa = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, blankrows: false, defval: '' });
-                if (!aoa.length) { toast.error('That file looks empty.'); return; }
-                const hdr = (aoa[0] as unknown[]).map((c) => String(c ?? '').trim());
-                const body = aoa.slice(1).map((r) => (r as unknown[]).map((c) => String(c ?? '')));
-                applyParsed(hdr, body);
-            }
+            const data = new Uint8Array(await file.arrayBuffer());
+            const wb = XLSX.read(data, { type: 'array' });
+            const ws = wb.Sheets[wb.SheetNames[0]];
+            const aoa = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, blankrows: false, defval: '' });
+            if (!aoa.length) { toast.error('That file looks empty.'); return; }
+            const hdr = (aoa[0] as unknown[]).map((c) => String(c ?? '').trim());
+            const body = aoa.slice(1).map((r) => (r as unknown[]).map((c) => String(c ?? '')));
+            applyParsed(hdr, body);
         } catch {
-            toast.error('Could not read that file. Use .xlsx, .csv or a text-based .pdf.');
+            toast.error('Could not read that file. Please upload a .csv or .xlsx.');
         }
     };
 
@@ -139,7 +132,7 @@ export default function ProductImport({ brands }: { brands: Brand[] }) {
                 <Card>
                     <CardHeader className="pb-3">
                         <CardTitle className="text-base">1. Brand &amp; file</CardTitle>
-                        <CardDescription>Upload the brand's price list (.xlsx, .csv, or a text-based .pdf). The first row should be column headers.</CardDescription>
+                        <CardDescription>Upload the brand's price list as <strong>.csv</strong> or <strong>.xlsx</strong> (first row = column headers). Manufacturer PDFs must be converted to CSV first with the price-list converter (tools/pricelist-ocr).</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid gap-4 sm:grid-cols-2">
@@ -156,7 +149,7 @@ export default function ProductImport({ brands }: { brands: Brand[] }) {
                             <div className="space-y-1.5">
                                 <Label>Price list file</Label>
                                 <div className="flex items-center gap-2">
-                                    <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv,.pdf" className="sr-only" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+                                    <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="sr-only" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
                                     <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}><Upload className="h-4 w-4" /> Choose file</Button>
                                     {fileName && <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><FileSpreadsheet className="h-4 w-4" /> {fileName}</span>}
                                 </div>
