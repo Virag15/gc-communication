@@ -100,6 +100,54 @@ class ProductController extends Controller
         return back()->with('success', 'Product deleted successfully.');
     }
 
+    /** Import screen: pick a brand, upload a price list, map columns. */
+    public function importForm()
+    {
+        return Inertia::render('Admin/Products/Import', [
+            'brands' => Brand::ordered()->get(['id', 'name']),
+        ]);
+    }
+
+    /** Bulk upsert mapped rows by (brand_id, item_no). */
+    public function import(Request $request)
+    {
+        $validated = $request->validate([
+            'brand_id' => 'nullable|integer|exists:brands,id',
+            'rows' => 'required|array|min:1|max:10000',
+            'rows.*.item_no' => 'required|string|max:60',
+            'rows.*.name' => 'required|string|max:200',
+            'rows.*.spec' => 'nullable|string|max:200',
+            'rows.*.price' => 'nullable|numeric|min:0',
+            'rows.*.mrp' => 'nullable|numeric|min:0',
+            'rows.*.category' => 'nullable|string|max:80',
+        ]);
+
+        $brandId = $validated['brand_id'] ?? null;
+        $created = 0;
+        $updated = 0;
+
+        DB::transaction(function () use ($validated, $brandId, &$created, &$updated) {
+            foreach ($validated['rows'] as $row) {
+                $price = $row['price'] ?? $row['mrp'] ?? 0;
+                $product = Product::updateOrCreate(
+                    ['brand_id' => $brandId, 'item_no' => $row['item_no']],
+                    [
+                        'name' => $row['name'],
+                        'spec' => $row['spec'] ?? null,
+                        'price' => $price,
+                        'mrp' => $row['mrp'] ?? null,
+                        'category' => $row['category'] ?? null,
+                        'is_active' => true,
+                    ],
+                );
+                $product->wasRecentlyCreated ? $created++ : $updated++;
+            }
+        });
+
+        return redirect()->route('admin.products.index')
+            ->with('success', "Import complete: {$created} added, {$updated} updated.");
+    }
+
     private function validateProduct(Request $request): array
     {
         return $request->validate([

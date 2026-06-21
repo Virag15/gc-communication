@@ -10,6 +10,7 @@ import {
     Globe,
     Settings,
     Package,
+    Boxes,
     FileText,
     Inbox,
     Newspaper,
@@ -67,6 +68,7 @@ const navGroups: NavGroup[] = [
         textColor: 'text-pink-600',
         items: [
             { name: 'Brands', href: '/admin/brands', icon: Package },
+            { name: 'Products', href: '/admin/products', icon: Boxes },
             { name: 'Catalogues', href: '/admin/catalogues', icon: FileText },
             { name: 'Blog', href: '/admin/blog', icon: Newspaper },
         ],
