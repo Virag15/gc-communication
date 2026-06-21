@@ -55,6 +55,9 @@ export default function PostForm({ post }: { post?: Post }) {
     const coverPreview = useMemo(() => (data.cover_image ? URL.createObjectURL(data.cover_image) : post?.cover_image ?? null), [data.cover_image, post?.cover_image]);
     useEffect(() => () => { if (coverPreview?.startsWith('blob:')) URL.revokeObjectURL(coverPreview); }, [coverPreview]);
 
+    const ogPreview = useMemo(() => (data.og_image ? URL.createObjectURL(data.og_image) : post?.og_image ?? null), [data.og_image, post?.og_image]);
+    useEffect(() => () => { if (ogPreview?.startsWith('blob:')) URL.revokeObjectURL(ogPreview); }, [ogPreview]);
+
     function onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         if (!data.title.trim()) return toast.error('Add a title.');
@@ -129,8 +132,14 @@ export default function PostForm({ post }: { post?: Post }) {
                             <div className="space-y-1.5"><Label htmlFor="meta_keywords">Keywords (comma separated)</Label><Input id="meta_keywords" value={data.meta_keywords} onChange={(e) => setData('meta_keywords', e.target.value)} placeholder="switchgear, mcb, ..." /></div>
                             <div className="space-y-1.5">
                                 <Label>Social image (OG)</Label>
-                                <input ref={ogRef} type="file" accept="image/*" className="sr-only" onChange={(e) => setData('og_image', e.target.files?.[0] ?? null)} />
-                                <Button type="button" variant="outline" size="sm" onClick={() => ogRef.current?.click()}><Upload className="h-3.5 w-3.5" /> {data.og_image ? data.og_image.name : (post?.og_image ? 'Replace image' : 'Upload (defaults to cover)')}</Button>
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-14 w-20 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+                                        {ogPreview ? <img src={ogPreview} alt="" className="h-full w-full object-cover" /> : <ImageIcon className="h-5 w-5 text-muted-foreground" />}
+                                    </div>
+                                    <input ref={ogRef} type="file" accept="image/*" className="sr-only" onChange={(e) => setData('og_image', e.target.files?.[0] ?? null)} />
+                                    <Button type="button" variant="outline" size="sm" onClick={() => ogRef.current?.click()}><Upload className="h-3.5 w-3.5" /> {data.og_image ? 'Change' : (post?.og_image ? 'Replace' : 'Upload')}</Button>
+                                </div>
+                                <p className="text-xs text-muted-foreground">Defaults to the cover image if left empty.</p>
                             </div>
                             <div className="flex items-center justify-between gap-3">
                                 <div><Label htmlFor="noindex">Hide from search</Label><p className="text-xs text-muted-foreground">noindex, nofollow</p></div>
