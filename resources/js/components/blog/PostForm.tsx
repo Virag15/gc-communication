@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import RichTextEditor from '@/components/RichTextEditor';
 import { toast } from 'sonner';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format } from 'date-fns';
 import { ArrowLeft, Loader2, Save, Upload, Image as ImageIcon } from 'lucide-react';
 import type { Post } from '@/types';
 
@@ -103,7 +105,7 @@ export default function PostForm({ post }: { post?: Post }) {
                                     <SelectContent><SelectItem value="draft">Draft</SelectItem><SelectItem value="published">Published</SelectItem></SelectContent>
                                 </Select>
                             </div>
-                            <div className="space-y-1.5"><Label htmlFor="published_at">Publish date</Label><Input id="published_at" type="date" value={data.published_at} onChange={(e) => setData('published_at', e.target.value)} /></div>
+                            <div className="space-y-1.5"><Label htmlFor="published_at">Publish date</Label><DatePicker id="published_at" value={data.published_at || null} onChange={(d) => setData('published_at', format(d, 'yyyy-MM-dd'))} placeholder="Pick a date" /></div>
                             <div className="space-y-1.5"><Label htmlFor="author">Author</Label><Input id="author" value={data.author} onChange={(e) => setData('author', e.target.value)} /></div>
                             <div className="space-y-1.5">
                                 <Label>Cover image</Label>

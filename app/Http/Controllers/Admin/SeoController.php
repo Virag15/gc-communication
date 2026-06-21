@@ -180,17 +180,30 @@ class SeoController extends Controller
 
     private function generateSitemapXml(): string
     {
-        $baseUrl = config('app.url');
-        $staticPages = [
+        $baseUrl = rtrim(config('app.url'), '/');
+        $urls = [
             ['loc' => '/', 'priority' => '1.0', 'changefreq' => 'weekly'],
+            ['loc' => '/about', 'priority' => '0.7', 'changefreq' => 'monthly'],
+            ['loc' => '/brands', 'priority' => '0.7', 'changefreq' => 'monthly'],
+            ['loc' => '/range', 'priority' => '0.7', 'changefreq' => 'monthly'],
             ['loc' => '/catalogues', 'priority' => '0.7', 'changefreq' => 'monthly'],
+            ['loc' => '/blog', 'priority' => '0.6', 'changefreq' => 'weekly'],
+            ['loc' => '/contact', 'priority' => '0.5', 'changefreq' => 'yearly'],
         ];
+
+        // Published blog posts (with last-modified dates).
+        foreach (\App\Models\Post::published()->latestFirst()->get(['slug', 'updated_at']) as $post) {
+            $urls[] = ['loc' => '/blog/' . $post->slug, 'priority' => '0.6', 'changefreq' => 'monthly', 'lastmod' => optional($post->updated_at)->toAtomString()];
+        }
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-        foreach ($staticPages as $url) {
+        foreach ($urls as $url) {
             $xml .= '  <url>' . "\n";
             $xml .= '    <loc>' . htmlspecialchars($baseUrl . $url['loc'], ENT_XML1) . '</loc>' . "\n";
+            if (!empty($url['lastmod'])) {
+                $xml .= '    <lastmod>' . $url['lastmod'] . '</lastmod>' . "\n";
+            }
             $xml .= '    <changefreq>' . $url['changefreq'] . '</changefreq>' . "\n";
             $xml .= '    <priority>' . $url['priority'] . '</priority>' . "\n";
             $xml .= '  </url>' . "\n";

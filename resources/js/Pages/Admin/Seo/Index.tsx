@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { Loader2, Upload, Image as ImageIcon, RefreshCw, X } from 'lucide-react';
+import { Loader2, Upload, Image as ImageIcon, RefreshCw, X, Save } from 'lucide-react';
 import { type SeoSetting } from '@/types';
 
 interface PageMeta {
@@ -173,7 +173,7 @@ export default function SeoIndex({ seoSettings, pages, sitemapInfo, appUrl }: Se
                         ))}
                     </div>
                     <Button type="submit" disabled={processing} className="ml-auto">
-                        {processing && <Loader2 className="h-4 w-4 animate-spin" />}
+                        {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                         Save all
                     </Button>
                 </div>

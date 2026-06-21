@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { toast } from 'sonner';
-import { ArrowLeft, Image as ImageIcon, Upload } from 'lucide-react';
+import { ArrowLeft, Image as ImageIcon, Upload, Loader2, Save } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -137,6 +137,7 @@ export default function BrandCreate() {
 
                 <div className="flex gap-3">
                     <Button type="submit" disabled={processing}>
+                        {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                         {processing ? 'Creating...' : 'Create Brand'}
                     </Button>
                     <Button type="button" variant="outline" asChild>

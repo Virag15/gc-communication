@@ -2,4 +2,20 @@ User-agent: *
 Allow: /
 Disallow: /admin
 
+# AI assistants & crawlers - allowed so GC Communication appears in AI answers.
+# Remove a name (or set Disallow: /) to opt that assistant out.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: anthropic-ai
+User-agent: PerplexityBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: Bytespider
+Allow: /
+Disallow: /admin
+
 Sitemap: https://gc-communication.in/sitemap.xml

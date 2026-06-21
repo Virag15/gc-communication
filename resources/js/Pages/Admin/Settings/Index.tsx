@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Loader2, Image as ImageIcon, Upload } from 'lucide-react';
+import { Loader2, Image as ImageIcon, Upload, Save } from 'lucide-react';
 
 interface SettingsIndexProps {
     settings: Record<string, string | null>;
@@ -200,7 +200,7 @@ export default function SettingsIndex({ settings, appUrl }: SettingsIndexProps) 
                 <div className="flex items-center justify-between gap-3">
                     <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Site Settings</h1>
                     <Button type="submit" disabled={processing}>
-                        {processing && <Loader2 className="h-4 w-4 animate-spin" />}
+                        {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                         Save
                     </Button>
                 </div>
@@ -332,7 +332,7 @@ export default function SettingsIndex({ settings, appUrl }: SettingsIndexProps) 
 
                         <div className="flex justify-end">
                             <Button type="submit" disabled={processing}>
-                                {processing && <Loader2 className="h-4 w-4 animate-spin" />}
+                                {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                                 Save settings
                             </Button>
                         </div>

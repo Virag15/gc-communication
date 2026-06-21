@@ -1,0 +1,15 @@
+# GC Communication
+
+> Authorized distributor of low-voltage electrical switchgear, serving Nashik & Jalgaon, Maharashtra, India since 2013. Distributed brands: C&S Electric, BCH, HPL, Suraj, Luker, and Kaycee.
+
+## Pages
+- [Home](https://gc-communication.in/): Company overview and distributed brands
+- [Brands](https://gc-communication.in/brands): Authorized distribution brands
+- [Range](https://gc-communication.in/range): Low-voltage switchgear product range
+- [Catalogues](https://gc-communication.in/catalogues): Downloadable brand catalogues and line cards
+- [Blog](https://gc-communication.in/blog): Articles and product guides
+- [About](https://gc-communication.in/about): About the company
+- [Contact](https://gc-communication.in/contact): Enquiries and contact details
+
+## More
+- [Sitemap](https://gc-communication.in/sitemap.xml)

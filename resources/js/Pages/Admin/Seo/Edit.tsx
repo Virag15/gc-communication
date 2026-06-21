@@ -20,6 +20,8 @@ import {
     Share2,
     Eye,
     Settings2,
+    Loader2,
+    Save,
 } from 'lucide-react';
 import { type SeoSetting } from '@/types';
 
@@ -112,6 +114,7 @@ export default function SeoEdit({ seo }: SeoEditProps) {
                             <Link href="/admin/seo">Cancel</Link>
                         </Button>
                         <Button type="submit" size="sm" disabled={processing}>
+                            {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                             {processing ? 'Saving...' : 'Save'}
                         </Button>
                     </div>
