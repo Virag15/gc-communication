@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
+import { Check,
     ArrowLeft,
     Search,
     Upload,
@@ -21,8 +21,7 @@ import {
     Eye,
     Settings2,
     Loader2,
-    Save,
-} from 'lucide-react';
+    } from 'lucide-react';
 import { type SeoSetting } from '@/types';
 
 interface SeoEditProps {
@@ -114,7 +113,7 @@ export default function SeoEdit({ seo }: SeoEditProps) {
                             <Link href="/admin/seo">Cancel</Link>
                         </Button>
                         <Button type="submit" size="sm" disabled={processing}>
-                            {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                            {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                             {processing ? 'Saving...' : 'Save'}
                         </Button>
                     </div>

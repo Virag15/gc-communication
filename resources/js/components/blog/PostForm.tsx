@@ -11,7 +11,7 @@ import RichTextEditor from '@/components/RichTextEditor';
 import { toast } from 'sonner';
 import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
-import { ArrowLeft, Loader2, Save, Upload, Image as ImageIcon } from 'lucide-react';
+import { Check, ArrowLeft, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
 import type { Post } from '@/types';
 
 interface Form {
@@ -73,7 +73,7 @@ export default function PostForm({ post }: { post?: Post }) {
             <div className="flex flex-wrap items-center gap-3">
                 <Button asChild variant="ghost" size="sm"><Link href="/admin/blog"><ArrowLeft className="h-4 w-4" /> Back</Link></Button>
                 <h1 className="text-xl font-bold tracking-tight">{isEdit ? 'Edit post' : 'New post'}</h1>
-                <Button type="submit" disabled={processing} className="ml-auto">{processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {isEdit ? 'Update' : 'Save'}</Button>
+                <Button type="submit" disabled={processing} className="ml-auto">{processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} {isEdit ? 'Update' : 'Save'}</Button>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">

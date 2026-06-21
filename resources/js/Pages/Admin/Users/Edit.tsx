@@ -1,7 +1,7 @@
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { toast } from 'sonner';
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { Check, ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -121,7 +121,7 @@ export default function UserEdit({ user }: UserEditProps) {
 
                 <div className="flex gap-3">
                     <Button type="submit" disabled={processing}>
-                        {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                        {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                         {processing ? 'Saving...' : 'Update User'}
                     </Button>
                     <Button type="button" variant="outline" asChild>

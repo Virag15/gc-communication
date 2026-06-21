@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { toast } from 'sonner';
-import { ArrowLeft, Upload, FileText, Loader2, Save } from "lucide-react";
+import { Check, ArrowLeft, Upload, FileText, Loader2 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -161,7 +161,7 @@ export default function CatalogueCreate({ brands }: CatalogueCreateProps) {
 
                 <div className="flex gap-3">
                     <Button type="submit" disabled={processing}>
-                        {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                        {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                         {processing ? 'Creating...' : 'Create Catalogue'}
                     </Button>
                     <Button type="button" variant="outline" asChild>
