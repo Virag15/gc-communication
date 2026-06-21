@@ -12,9 +12,6 @@ import {
     Package,
     FileText,
     Inbox,
-    Calculator,
-    Boxes,
-    Contact,
     Newspaper,
     type LucideIcon,
 } from 'lucide-react';
@@ -64,29 +61,22 @@ const navGroups: NavGroup[] = [
             { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
         ],
     },
-    // ──────────────────────────────────────────────
-    // Add your nav groups here, e.g.:
-    // {
-    //     label: 'Manage',
-    //     color: 'bg-blue-500',
-    //     textColor: 'text-blue-600',
-    //     items: [
-    //         { name: 'Posts', href: '/admin/posts', icon: FileText },
-    //     ],
-    // },
-    // ──────────────────────────────────────────────
     {
         label: 'Content',
         color: 'bg-pink-500',
         textColor: 'text-pink-600',
         items: [
             { name: 'Brands', href: '/admin/brands', icon: Package },
-            { name: 'Products', href: '/admin/products', icon: Boxes },
             { name: 'Catalogues', href: '/admin/catalogues', icon: FileText },
             { name: 'Blog', href: '/admin/blog', icon: Newspaper },
-            { name: 'Customers', href: '/admin/customers', icon: Contact },
+        ],
+    },
+    {
+        label: 'Leads',
+        color: 'bg-amber-500',
+        textColor: 'text-amber-600',
+        items: [
             { name: 'Enquiries', href: '/admin/enquiries', icon: Inbox },
-            { name: 'BOM', href: '/admin/bom', icon: Calculator },
         ],
     },
     {

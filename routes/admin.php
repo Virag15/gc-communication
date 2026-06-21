@@ -3,13 +3,9 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CatalogueController;
-use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\EstimateController;
-use App\Http\Controllers\Admin\EstimateSettingController;
 use App\Http\Controllers\Admin\PostController;
-use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\UserController;
@@ -79,22 +75,6 @@ Route::middleware(['auth', AdminAccess::class])->group(function () {
         Route::post('/catalogues/{id}', [CatalogueController::class, 'update'])->where('id', '[0-9]+')->name('admin.catalogues.update');
         Route::delete('/catalogues/{id}', [CatalogueController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.catalogues.destroy');
 
-        // Products (catalog searched by the estimate creator; update via POST for image uploads).
-        Route::get('/products', [ProductController::class, 'index'])->name('admin.products.index');
-        Route::get('/products/create', [ProductController::class, 'create'])->name('admin.products.create');
-        Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
-        Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->where('id', '[0-9]+')->name('admin.products.edit');
-        Route::post('/products/{id}', [ProductController::class, 'update'])->where('id', '[0-9]+')->name('admin.products.update');
-        Route::delete('/products/{id}', [ProductController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.products.destroy');
-
-        // Customers (selectable in the estimate creator).
-        Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
-        Route::get('/customers/create', [CustomerController::class, 'create'])->name('admin.customers.create');
-        Route::post('/customers', [CustomerController::class, 'store'])->name('admin.customers.store');
-        Route::get('/customers/{id}/edit', [CustomerController::class, 'edit'])->where('id', '[0-9]+')->name('admin.customers.edit');
-        Route::put('/customers/{id}', [CustomerController::class, 'update'])->where('id', '[0-9]+')->name('admin.customers.update');
-        Route::delete('/customers/{id}', [CustomerController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.customers.destroy');
-
         // Blog posts (rich text + per-post SEO; update via POST for image uploads).
         Route::get('/blog', [PostController::class, 'index'])->name('admin.blog.index');
         Route::get('/blog/create', [PostController::class, 'create'])->name('admin.blog.create');
@@ -108,15 +88,7 @@ Route::middleware(['auth', AdminAccess::class])->group(function () {
         Route::get('/enquiries/{id}', [EnquiryController::class, 'show'])->where('id', '[0-9]+')->name('admin.enquiries.show');
         Route::delete('/enquiries/{id}', [EnquiryController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.enquiries.destroy');
 
-        // BOM / estimate creator (customer + products -> discounts/GST -> save -> branded PDF).
-        Route::get('/bom', [EstimateController::class, 'index'])->name('admin.bom.index');
-        Route::get('/bom/create', [EstimateController::class, 'create'])->name('admin.bom.create');
-        Route::post('/bom', [EstimateController::class, 'store'])->name('admin.bom.store');
-        Route::get('/bom/settings', [EstimateSettingController::class, 'edit'])->name('admin.bom.settings');
-        Route::post('/bom/settings', [EstimateSettingController::class, 'update'])->name('admin.bom.settings.update');
-        Route::get('/bom/{id}', [EstimateController::class, 'show'])->where('id', '[0-9]+')->name('admin.bom.show');
-        Route::get('/bom/{id}/edit', [EstimateController::class, 'edit'])->where('id', '[0-9]+')->name('admin.bom.edit');
-        Route::put('/bom/{id}', [EstimateController::class, 'update'])->where('id', '[0-9]+')->name('admin.bom.update');
-        Route::delete('/bom/{id}', [EstimateController::class, 'destroy'])->where('id', '[0-9]+')->name('admin.bom.destroy');
+        // NOTE: The BOM / estimate creator (with Products & Customers) is archived
+        // under /archive. See archive/README.md to restore it.
     });
 });
