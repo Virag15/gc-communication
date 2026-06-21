@@ -24,3 +24,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Manufacturer price-list PDFs (large, local source files for tools/pricelist-ocr)
+/price-list/
